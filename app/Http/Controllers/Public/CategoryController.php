@@ -67,7 +67,26 @@ class CategoryController extends Controller
 
             $products = $query->paginate(12)->withQueryString();
 
-            return compact('category', 'products', 'metalTypes', 'goldPurities', 'hasPrices', 'sort');
+            $seoTitle = $category->seo_title ?: $category->name;
+            $metaDescription = $category->seo_description
+                ?: ($category->description
+                    ? \Illuminate\Support\Str::limit(strip_tags($category->description), 160)
+                    : null);
+            $canonicalUrl = route('category.show', $category->slug, absolute: true);
+            $ogImage = $category->image ? app(\App\Services\ImageService::class)->url($category->image) : null;
+
+            return compact(
+                'category',
+                'products',
+                'metalTypes',
+                'goldPurities',
+                'hasPrices',
+                'sort',
+                'seoTitle',
+                'metaDescription',
+                'canonicalUrl',
+                'ogImage'
+            );
         });
 
         return view('pages.category', array_merge($data, ['settings' => $settings]));

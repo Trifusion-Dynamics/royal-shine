@@ -29,7 +29,7 @@ class DashboardStats extends StatsOverviewWidget
                 ->icon('heroicon-o-folder'),
             Stat::make('Total Enquiries', Enquiry::count())
                 ->description('All customer enquiries')
-                ->icon('heroicon-o-chat'),
+                ->icon('heroicon-o-chat-bubble-left-ellipsis'),
             Stat::make('New Enquiries', Enquiry::where('status', 'new')->count())
                 ->description('Awaiting response')
                 ->icon('heroicon-o-clock')

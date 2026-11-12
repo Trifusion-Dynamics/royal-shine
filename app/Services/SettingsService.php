@@ -20,6 +20,9 @@ class SettingsService
     public function clear(): void
     {
         Cache::forget('settings.all');
-        // Individual setting keys are forgotten on next get via Setting model
+
+        Setting::query()->pluck('key')->each(function (string $key) {
+            Cache::forget('setting.' . $key);
+        });
     }
 }

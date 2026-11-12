@@ -11,9 +11,13 @@
                 <div class="space-y-8">
                     <div>
                         <h3 class="font-serif font-bold text-[#1a1a1a] text-2xl mb-6">Get in Touch</h3>
-                        <p class="text-[#666] leading-relaxed mb-6">
-                            Have a question about our jewellery collection? Want to place a custom order? We'd love to hear from you. Reach out to us through any of the channels below.
-                        </p>
+                        @if ($page?->content)
+                            <div class="prose text-[#666] leading-relaxed mb-6 max-w-none">{!! $page->content !!}</div>
+                        @else
+                            <p class="text-[#666] leading-relaxed mb-6">
+                                Have a question about our jewellery collection? Want to place a custom order? We'd love to hear from you. Reach out to us through any of the channels below.
+                            </p>
+                        @endif
                     </div>
 
                     @php
@@ -99,6 +103,7 @@
                     <h3 class="font-serif font-bold text-[#1a1a1a] text-2xl mb-6">Send Us a Message</h3>
                     <form action="{{ route('enquiry.store') }}" method="POST" class="space-y-6">
                         @csrf
+                        <input type="text" name="website" value="" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>

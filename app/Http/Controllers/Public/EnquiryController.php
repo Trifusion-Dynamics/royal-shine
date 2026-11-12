@@ -23,6 +23,12 @@ class EnquiryController extends Controller
 
     public function store(Request $request, SettingsService $settings)
     {
+        // Honeypot spam protection: real users never fill this hidden field.
+        if ($request->filled('website')) {
+            return redirect()->route('enquiry.success')
+                ->with('success', 'Your enquiry has been submitted. We will contact you soon.');
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'mobile' => ['required', 'string', 'max:20'],
@@ -36,7 +42,19 @@ class EnquiryController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $enquiry = Enquiry::create([
+        // Basic duplicate protection: ignore identical submissions from the
+        // same mobile number within the last 2 minutes.
+        $duplicate = Enquiry::where('mobile', $request->get('mobile'))
+            ->where('message', $request->get('message'))
+            ->where('created_at', '>=', now()->subMinutes(2))
+            ->exists();
+
+        if ($duplicate) {
+            return redirect()->route('enquiry.success')
+                ->with('success', 'Your enquiry has been submitted. We will contact you soon.');
+        }
+
+        Enquiry::create([
             'product_id' => $request->get('product_id'),
             'name' => $request->get('name'),
             'mobile' => $request->get('mobile'),

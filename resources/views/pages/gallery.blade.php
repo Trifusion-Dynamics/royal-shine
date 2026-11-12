@@ -1,20 +1,19 @@
-<x-layout>
+<x-layout
+    :seoTitle="$page->seo_title ?? 'Gallery'"
+    :metaDescription="$page->seo_description ?? 'Explore our jewellery collection through captured moments.'"
+>
     <section class="py-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h1 class="text-5xl md:text-6xl font-serif text-[#1a1a1a] mb-6">Our Gallery</h1>
+                <h1 class="text-5xl md:text-6xl font-serif text-[#1a1a1a] mb-6">{{ $page->title ?? 'Our Gallery' }}</h1>
                 <div class="w-20 h-1 bg-[#d4a373] mx-auto"></div>
                 <p class="text-lg text-[#666] mt-4">Explore our jewellery collection through captured moments</p>
             </div>
 
-            @php
-                $galleryItems = App\Models\Gallery::where('status', 'active')->orderBy('sort_order')->get();
-            @endphp
-
-            @if ($galleryItems->count() > 0)
+            @if ($items->count() > 0)
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                    @foreach ($galleryItems as $item)
-                        <div class="aspect-[4/5] bg-[#f3f3f3] overflow-hidden group">
+                    @foreach ($items as $item)
+                        <div class="relative aspect-[4/5] bg-[#f3f3f3] overflow-hidden group">
                             <x-image
                                 :path="$item->image"
                                 :alt="$item->title ?? 'Gallery Image'"

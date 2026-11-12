@@ -1,26 +1,37 @@
-<x-layout>
-    <section class="py-20">
+<x-layout :seoTitle="$page->seo_title ?? 'About Us'" :metaDescription="$page->seo_description ?? null" :canonicalUrl="route('about', absolute: true)">
+    <section class="py-20 pt-8">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h1 class="text-5xl md:text-6xl font-serif text-[#1a1a1a] mb-6">About Royal Shine</h1>
+                <h1 class="text-5xl md:text-6xl font-serif text-[#1a1a1a] mb-6">{{ $page->title ?? 'About Royal Shine' }}</h1>
                 <div class="w-20 h-1 bg-[#d4a373] mx-auto"></div>
             </div>
 
             <div class="grid lg:grid-cols-2 gap-16 items-center">
-                <div class="prose prose-lg text-[#666] leading-relaxed space-y-6">
-                    <p class="text-lg">
-                        Royal Shine is a premium jewellery brand dedicated to crafting timeless pieces with care, precision, and passion. Each design in our collection tells a story — of tradition, of elegance, and of the moments that matter most.
-                    </p>
-                    <p>
-                        From the finest gold to the most exquisite gemstones, we source only the best materials to create jewellery that you'll treasure for generations. Our artisans combine age-old techniques with modern design sensibilities to bring you pieces that are both classic and contemporary.
-                    </p>
-                    <p>
-                        Whether you're looking for a statement necklace for your wedding, elegant earrings for everyday wear, or a custom piece designed just for you, Royal Shine is here to make your vision a reality.
-                    </p>
-                </div>
+                @if ($page?->content)
+                    <div class="prose prose-lg text-[#666] leading-relaxed max-w-none">
+                        {!! $page->content !!}
+                    </div>
+                @else
+                    <div class="prose prose-lg text-[#666] leading-relaxed space-y-6">
+                        <p class="text-lg">
+                            Royal Shine is a premium jewellery brand dedicated to crafting timeless pieces with care, precision, and passion. Each design in our collection tells a story — of tradition, of elegance, and of the moments that matter most.
+                        </p>
+                        <p>
+                            From the finest gold to the most exquisite gemstones, we source only the best materials to create jewellery that you'll treasure for generations. Our artisans combine age-old techniques with modern design sensibilities to bring you pieces that are both classic and contemporary.
+                        </p>
+                        <p>
+                            Whether you're looking for a statement necklace for your wedding, elegant earrings for everyday wear, or a custom piece designed just for you, Royal Shine is here to make your vision a reality.
+                        </p>
+                    </div>
+                @endif
                 <div class="relative h-[500px]">
                     <div class="absolute inset-0 bg-[#f3f3f3] overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80" alt="Royal Shine Jewellery Workshop" class="w-full h-full object-cover" loading="lazy" width="800" height="500" />
+                        <x-image
+                            :path="app(\App\Services\SettingsService::class)->get('about_image') ?: null"
+                            alt="{{ $page->title ?? 'About Royal Shine' }}"
+                            class="w-full h-full object-cover"
+                            loading="lazy"
+                        />
                     </div>
                     <div class="absolute bottom-6 left-6 bg-white p-6 shadow-xl border border-[#e5e5e5]">
                         <h3 class="font-serif font-bold text-[#1a1a1a] text-lg mb-2">Our Craftsmanship</h3>

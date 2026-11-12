@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\Product;
 use App\Services\SettingsService;
 use Illuminate\Support\Facades\Cache;
@@ -18,10 +19,8 @@ class HomeController extends Controller
                 ->orderBy('sort_order')
                 ->get();
 
-            $featuredCategories = Category::where('status', 'active')
-                ->where('is_featured', true)
+            $categories = Category::where('status', 'active')
                 ->orderBy('sort_order')
-                ->take(6)
                 ->get();
 
             $featuredProducts = Product::where('status', 'published')
@@ -37,7 +36,13 @@ class HomeController extends Controller
                 ->take(8)
                 ->get();
 
-            return compact('banners', 'featuredCategories', 'featuredProducts', 'newArrivals');
+            $featuredCollections = Collection::where('status', 'active')
+                ->where('is_featured', true)
+                ->orderBy('sort_order')
+                ->take(4)
+                ->get();
+
+            return compact('banners', 'categories', 'featuredProducts', 'newArrivals', 'featuredCollections');
         });
 
         return view('pages.home', array_merge($data, ['settings' => $settings]));

@@ -4,23 +4,29 @@ namespace App\Filament\Pages;
 
 use App\Models\Setting;
 use App\Services\SettingsService;
+use Filament\Actions\Action;
 use Filament\Forms;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 
-class Settings extends Page
+class Settings extends Page implements HasForms
 {
+    use InteractsWithForms;
+
     protected static ?string $navigationIcon = 'heroicon-o-cog';
 
     protected static ?string $title = 'Website Settings';
 
-
     protected static ?string $slug = 'settings';
+
+    protected static string $view = 'filament.pages.settings';
 
     protected static bool $shouldRegisterNavigation = true;
 
-    public array $data = [];
+    public ?array $data = [];
 
     public function form(Form $form): Form
     {
@@ -39,6 +45,11 @@ class Settings extends Page
                         Forms\Components\FileUpload::make('favicon')
                             ->image()
                             ->maxSize(2048)
+                            ->directory('settings'),
+                        Forms\Components\FileUpload::make('about_image')
+                            ->label('About Page Image')
+                            ->image()
+                            ->maxSize(4096)
                             ->directory('settings'),
                     ])
                     ->columns(3),
@@ -94,15 +105,17 @@ class Settings extends Page
                             ->label('Footer Text')
                             ->columnSpanFull(),
                     ]),
-            ]);
+            ])
+            ->statePath('data');
     }
 
     public function mount(): void
     {
-        $this->data = [
+        $this->form->fill([
             'site_name' => Setting::get('site_name'),
             'logo' => Setting::get('logo'),
             'favicon' => Setting::get('favicon'),
+            'about_image' => Setting::get('about_image'),
             'phone' => Setting::get('phone'),
             'whatsapp_number' => Setting::get('whatsapp_number'),
             'email' => Setting::get('email'),
@@ -113,14 +126,21 @@ class Settings extends Page
             'social_whatsapp' => Setting::get('social_whatsapp'),
             'social_twitter' => Setting::get('social_twitter'),
             'footer_text' => Setting::get('footer_text'),
+        ]);
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            Action::make('save')
+                ->label('Save Settings')
+                ->submit('save'),
         ];
     }
 
     public function save(SettingsService $settings): void
     {
-        $data = $this->data;
-
-        foreach ($data as $key => $value) {
+        foreach ($this->form->getState() as $key => $value) {
             Setting::set($key, $value, 'general');
         }
 
@@ -132,4 +152,3 @@ class Settings extends Page
             ->send();
     }
 }
-

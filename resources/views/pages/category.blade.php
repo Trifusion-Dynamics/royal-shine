@@ -1,8 +1,10 @@
-<x-layout>
+<x-layout :seoTitle="$seoTitle" :metaDescription="$metaDescription" :canonicalUrl="$canonicalUrl" :ogImage="$ogImage">
     <!-- Breadcrumb -->
-    <nav class="mb-8 text-sm text-[#666]">
-        <ol class="flex space-x-2">
+    <nav class="mb-8 text-sm text-[#666] pt-8">
+        <ol class="flex space-x-2 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <li><a href="{{ route('home') }}" class="hover:text-[#d4a373]">Home</a></li>
+            <li><span>/</span></li>
+            <li><a href="{{ route('jewellery.index') }}" class="hover:text-[#d4a373]">Jewellery</a></li>
             <li><span>/</span></li>
             <li><span class="text-[#1a1a1a] font-medium">{{ $category->name }}</span></li>
         </ol>
@@ -18,63 +20,59 @@
     </header>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        @php
+            $sortOptions = ['latest' => 'Latest First'];
+            if ($hasPrices) {
+                $sortOptions['price_low'] = 'Price: Low to High';
+                $sortOptions['price_high'] = 'Price: High to Low';
+            }
+
+            $metalLabels = [
+                'gold' => 'Gold',
+                'silver' => 'Silver',
+                'artificial' => 'Artificial',
+                'other' => 'Other',
+            ];
+            $metalOptions = collect($metalTypes)
+                ->mapWithKeys(function ($metal) use ($metalLabels) {
+                    $value = $metal instanceof \BackedEnum ? $metal->value : (string) $metal;
+                    return [$value => $metalLabels[$value] ?? ucfirst($value)];
+                })
+                ->all();
+            $purityOptions = collect($goldPurities)
+                ->mapWithKeys(function ($purity) {
+                    $value = $purity instanceof \BackedEnum ? $purity->value : (string) $purity;
+                    return [$value => $value . ' Gold'];
+                })
+                ->all();
+        @endphp
+
         <!-- Controls Row -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <form method="GET" action="{{ route('category.show', $category->slug) }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <!-- Sort -->
-            <div class="col-span-1 sm:col-span-1 lg:col-span-1">
+            <div>
                 <label class="block text-xs font-medium text-[#666] uppercase tracking-wider mb-2">Sort By</label>
-                <select
-                    name="sort"
-                    id="sort"
-                    class="w-full bg-white border border-[#e5e5e5] px-4 py-3 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
-                    onchange="this.form.submit()"
-                >
-                    <option value="latest" {{ $sort === 'latest' ? 'selected' : '' }}>Latest First</option>
-                    @if ($hasPrices)
-                        <option value="price_low" {{ $sort === 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
-                        <option value="price_high" {{ $sort === 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
-                    @endif
-                </select>
+                <x-filter-select name="sort" placeholder="Latest First" :selected="$sort" :options="$sortOptions" />
             </div>
 
             <!-- Metal Filter -->
             @if ($metalTypes->count() > 0)
-                <div class="col-span-1 sm:col-span-1 lg:col-span-1">
+                <div>
                     <label class="block text-xs font-medium text-[#666] uppercase tracking-wider mb-2">Metal Type</label>
-                    <select
-                        name="metal_type"
-                        id="metal_type"
-                        class="w-full bg-white border border-[#e5e5e5] px-4 py-3 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
-                        onchange="this.form.submit()"
-                    >
-                        <option value="">All Metals</option>
-                        @foreach ($metalTypes as $metal)
-                            <option value="{{ $metal }}" {{ request()->get('metal_type') === $metal ? 'selected' : '' }}>{{ $metal }}</option>
-                        @endforeach
-                    </select>
+                    <x-filter-select name="metal_type" placeholder="All Metals" :selected="request()->get('metal_type', '')" :options="$metalOptions" />
                 </div>
             @endif
 
             <!-- Purity Filter -->
             @if ($goldPurities->count() > 0)
-                <div class="col-span-1 sm:col-span-1 lg:col-span-1">
+                <div>
                     <label class="block text-xs font-medium text-[#666] uppercase tracking-wider mb-2">Gold Purity</label>
-                    <select
-                        name="gold_purity"
-                        id="gold_purity"
-                        class="w-full bg-white border border-[#e5e5e5] px-4 py-3 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
-                        onchange="this.form.submit()"
-                    >
-                        <option value="">All Purities</option>
-                        @foreach ($goldPurities as $purity)
-                            <option value="{{ $purity }}" {{ request()->get('gold_purity') === $purity ? 'selected' : '' }}>{{ $purity }}</option>
-                        @endforeach
-                    </select>
+                    <x-filter-select name="gold_purity" placeholder="All Purities" :selected="request()->get('gold_purity', '')" :options="$purityOptions" />
                 </div>
             @endif
 
             <!-- Search -->
-            <div class="col-span-1 sm:col-span-1 lg:col-span-1 relative">
+            <div class="relative">
                 <label class="block text-xs font-medium text-[#666] uppercase tracking-wider mb-2">Search</label>
                 <div class="relative">
                     <input type="text" name="search" value="{{ request()->get('search', '') }}"
@@ -88,7 +86,7 @@
                     <a href="{{ route('category.show', $category->slug) }}" class="mt-1 text-xs text-[#666] hover:text-[#d4a373]">Clear search</a>
                 @endif
             </div>
-        </div>
+        </form>
 
         @if ($products->count() > 0)
             <!-- Product Count Info -->

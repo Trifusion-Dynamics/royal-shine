@@ -15,7 +15,7 @@ class CollectionResource extends Resource
 {
     protected static ?string $model = Collection::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-collection';
+    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
 
 
     public static function form(Form $form): Form

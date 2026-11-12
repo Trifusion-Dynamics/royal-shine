@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
-use App\Enums\GoldPurity;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -50,8 +49,15 @@ class ProductResource extends Resource
                             ->columnSpanFull(),
                         Forms\Components\Textarea::make('description')
                             ->columnSpanFull(),
-                        Forms\Components\TextInput::make('metal_type')
-                            ->maxLength(100),
+                        Forms\Components\Select::make('metal_type')
+                            ->label('Metal Type')
+                            ->options([
+                                'gold' => 'Gold',
+                                'silver' => 'Silver',
+                                'artificial' => 'Artificial',
+                                'other' => 'Other',
+                            ])
+                            ->native(false),
                     ])
                     ->columns(2),
 
@@ -78,8 +84,14 @@ class ProductResource extends Resource
                 Forms\Components\Section::make('Specs')
                     ->schema([
                         Forms\Components\Select::make('gold_purity')
-                            ->options(array_column(GoldPurity::cases(), 'value', 'value'))
-                            ->visible(fn(callable $get) => $get('metal_type') === 'gold'),
+                            ->label('Gold Purity')
+                            ->options([
+                                '9K' => '9K (9 Karat)',
+                                '14K' => '14K (14 Karat)',
+                                '18K' => '18K (18 Karat)',
+                            ])
+                            ->visible(fn(callable $get) => $get('metal_type') === 'gold')
+                            ->native(false),
                         Forms\Components\TextInput::make('weight')
                             ->numeric(),
                         Forms\Components\TextInput::make('weight_unit')
@@ -113,7 +125,13 @@ class ProductResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn(Builder $query) => $query->with('images'))
             ->columns([
+                Tables\Columns\ImageColumn::make('image')
+                    ->label('Image')
+                    ->getStateUsing(fn($record) => optional($record->images->firstWhere('is_primary', true) ?? $record->images->first())->image)
+                    ->height(40)
+                    ->width(40),
                 Tables\Columns\TextColumn::make('category.name')
                     ->searchable()
                     ->sortable(),
@@ -123,8 +141,10 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('sku')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('metal_type')
+                    ->badge()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('gold_purity')
+                    ->badge()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
                     ->money('inr')
@@ -148,8 +168,32 @@ class ProductResource extends Resource
                     ]),
                 Tables\Filters\SelectFilter::make('category')
                     ->relationship('category', 'name'),
+                Tables\Filters\SelectFilter::make('metal_type')
+                    ->label('Metal Type')
+                    ->options([
+                        'gold' => 'Gold',
+                        'silver' => 'Silver',
+                        'artificial' => 'Artificial',
+                        'other' => 'Other',
+                    ]),
+                Tables\Filters\SelectFilter::make('gold_purity')
+                    ->label('Gold Purity')
+                    ->options([
+                        '9K' => '9K',
+                        '14K' => '14K',
+                        '18K' => '18K',
+                    ]),
+                Tables\Filters\TernaryFilter::make('is_featured')
+                    ->label('Featured'),
             ])
             ->actions([
+                Tables\Actions\Action::make('toggleStatus')
+                    ->label(fn(Product $record) => $record->status === 'published' ? 'Unpublish' : 'Publish')
+                    ->icon(fn(Product $record) => $record->status === 'published' ? 'heroicon-o-eye-slash' : 'heroicon-o-check-circle')
+                    ->color(fn(Product $record) => $record->status === 'published' ? 'warning' : 'success')
+                    ->action(fn(Product $record) => $record->update([
+                        'status' => $record->status === 'published' ? 'draft' : 'published',
+                    ])),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

@@ -74,11 +74,11 @@
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                         @if ($product->metal_type)
                             <dt class="text-[#666] font-medium">Material</dt>
-                            <dd class="text-[#1a1a1a]">{{ $product->metal_type }}</dd>
+                            <dd class="text-[#1a1a1a]">{{ ucfirst($product->metal_type) }}</dd>
                         @endif
                         @if ($product->gold_purity)
                             <dt class="text-[#666] font-medium">Gold Purity</dt>
-                            <dd class="text-[#1a1a1a]">{{ $product->gold_purity }}</dd>
+                            <dd class="text-[#1a1a1a]">{{ $product->gold_purity->value }} Gold</dd>
                         @endif
                         @if ($product->weight && $product->weight_unit)
                             <dt class="text-[#666] font-medium">Weight</dt>
@@ -108,16 +108,49 @@
 
                 <!-- Actions -->
                 <div class="pt-8 border-t border-[#e5e5e5]">
-                    <form action="{{ route('enquiry.store') }}" method="POST" class="flex flex-col sm:flex-row gap-4 mb-6">
+                    @if (session('success'))
+                        <div class="bg-[#f0fdf4] border border-[#86efac] text-[#166534] px-4 py-3 text-sm mb-4">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    <h3 class="font-serif font-bold text-[#1a1a1a] mb-4 text-lg">Enquire About This Piece</h3>
+                    <form action="{{ route('enquiry.store') }}" method="POST" class="space-y-4 mb-6">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                         <input type="hidden" name="product_reference" value="{{ $product->sku }}">
-                        <input type="hidden" name="name" value="">
-                        <input type="hidden" name="mobile" value="">
-                        <input type="hidden" name="email" value="">
-                        <textarea name="message" required placeholder="Type your enquiry here..."
-                            class="flex-1 h-16 border border-[#e5e5e5] px-4 py-3 text-sm rounded-none focus:outline-none focus:ring-2 focus:ring-[#d4a373]"></textarea>
-                        <button type="submit" class="btn-gold px-8 py-3 text-sm whitespace-nowrap">Enquire Now</button>
+                        <input type="text" name="website" value="" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-[#1a1a1a] mb-1">Full Name <span class="text-red-500">*</span></label>
+                                <input type="text" name="name" value="{{ old('name') }}" required
+                                    class="w-full px-4 py-3 border border-[#e5e5e5] rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373] @error('name') border-red-500 @enderror">
+                                @error('name') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-[#1a1a1a] mb-1">Mobile Number <span class="text-red-500">*</span></label>
+                                <input type="tel" name="mobile" value="{{ old('mobile') }}" required
+                                    class="w-full px-4 py-3 border border-[#e5e5e5] rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373] @error('mobile') border-red-500 @enderror">
+                                @error('mobile') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-[#1a1a1a] mb-1">Email (optional)</label>
+                            <input type="email" name="email" value="{{ old('email') }}"
+                                class="w-full px-4 py-3 border border-[#e5e5e5] rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373] @error('email') border-red-500 @enderror">
+                            @error('email') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-[#1a1a1a] mb-1">Message <span class="text-red-500">*</span></label>
+                            <textarea name="message" required rows="3" placeholder="Type your enquiry here..."
+                                class="w-full px-4 py-3 border border-[#e5e5e5] rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373] @error('message') border-red-500 @enderror">{{ old('message', 'I am interested in ' . $product->name . ' (SKU: ' . $product->sku . ').') }}</textarea>
+                            @error('message') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                        </div>
+
+                        <button type="submit" class="btn-gold w-full px-8 py-3 text-sm">Send Enquiry</button>
                     </form>
 
                     @php

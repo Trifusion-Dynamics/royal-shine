@@ -19,7 +19,7 @@ class EnquiryResource extends Resource
 {
     protected static ?string $model = Enquiry::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-chat';
+    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-ellipsis';
 
 
     public static function form(Form $form): Form

@@ -10,6 +10,7 @@
 
         <form action="{{ route('enquiry.store') }}" method="POST" class="space-y-6">
             @csrf
+            <input type="text" name="website" value="" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
 
             @if ($product)
                 <input type="hidden" name="product_id" value="{{ $product->id }}">

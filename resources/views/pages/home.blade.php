@@ -38,12 +38,12 @@
         </section>
     @endif
 
-    <!-- Featured Categories -->
-    @if ($featuredCategories->count() > 0)
+    <!-- Shop by Category -->
+    @if ($categories->count() > 0)
         <section class="mb-20">
             <x-section-heading title="Shop by Category" subtitle="Explore our curated jewellery collections" />
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-                @foreach ($featuredCategories as $category)
+                @foreach ($categories as $category)
                     <a href="{{ route('category.show', $category->slug) }}" class="group block">
                         <div class="aspect-square relative mb-4 overflow-hidden mx-auto w-32 h-32">
                             @if ($category->image)
@@ -81,6 +81,39 @@
         </section>
     @endif
 
+    <!-- Featured Collections -->
+    @if ($featuredCollections->count() > 0)
+        <section class="mb-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <x-section-heading title="Curated Collections" subtitle="Shop our specially curated jewellery collections" />
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    @foreach ($featuredCollections as $collection)
+                        <div class="group border border-[#e5e5e5] bg-white">
+                            <div class="aspect-[4/5] overflow-hidden">
+                                @if ($collection->image)
+                                    <x-image
+                                        :path="$collection->image"
+                                        :alt="$collection->name"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        loading="lazy"
+                                    />
+                                @else
+                                    <div class="w-full h-full bg-[#f3f3f3]"></div>
+                                @endif
+                            </div>
+                            <div class="p-4 text-center">
+                                <h3 class="text-lg font-serif text-[#1a1a1a] group-hover:text-[#d4a373] transition-colors">{{ $collection->name }}</h3>
+                                @if ($collection->description)
+                                    <p class="text-sm text-[#666] mt-1 line-clamp-2">{{ $collection->description }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
     <!-- New Arrivals -->
     @if ($newArrivals->count() > 0)
         <section class="mb-20">
@@ -89,7 +122,7 @@
                     <div>
                         <x-section-heading title="New Arrivals" subtitle="Latest additions to our collection" />
                     </div>
-                    <a href="{{ route('category.show', \App\Models\Category::first()->slug ?? 'necklaces') }}" class="text-[#d4a373] font-medium hover:underline">View All</a>
+                    <a href="{{ route('jewellery.index') }}" class="text-[#d4a373] font-medium hover:underline">View All</a>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
                     @foreach ($newArrivals as $product)
