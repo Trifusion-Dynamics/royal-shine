@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Gallery;
 use App\Models\Page;
+use App\Services\ImageService;
 use App\Services\SettingsService;
 
 class PageController extends Controller
@@ -30,9 +31,13 @@ class PageController extends Controller
         $items = Gallery::where('status', 'active')
             ->orderBy('sort_order')
             ->get();
+        $imageUrls = $items
+            ->map(fn (Gallery $item): string => app(ImageService::class)->url($item->image))
+            ->all();
 
         return view('pages.gallery', [
             'items' => $items,
+            'imageUrls' => $imageUrls,
             'page' => $this->content('gallery'),
             'settings' => $settings,
         ]);

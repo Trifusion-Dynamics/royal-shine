@@ -10,12 +10,23 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
-            'name' => env('ADMIN_NAME', 'Admin'),
-            'email' => env('ADMIN_EMAIL', 'admin@example.com'),
-            'password' => bcrypt(env('ADMIN_PASSWORD', 'password')),
-            'is_admin' => true,
-        ]);
+        $adminName = config('royal_shine.admin.name');
+        $adminEmail = config('royal_shine.admin.email');
+        $adminPassword = config('royal_shine.admin.password');
+
+        if (filled($adminEmail) && filled($adminPassword)) {
+            User::firstOrCreate(
+                ['email' => $adminEmail],
+                [
+                    'name' => $adminName ?: 'Royal Shine Admin',
+                    'password' => $adminPassword,
+                    'is_admin' => true,
+                    'role' => 'super_admin',
+                ],
+            );
+        } else {
+            $this->command?->warn('Admin account was not seeded. Set ADMIN_EMAIL and ADMIN_PASSWORD first.');
+        }
 
         $categories = [
             'Necklaces',
@@ -33,17 +44,19 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($categories as $index => $name) {
-            Category::create([
-                'name' => $name,
-                'slug' => str($name)->slug(),
-                'description' => null,
-                'image' => null,
-                'is_featured' => false,
-                'status' => 'active',
-                'seo_title' => null,
-                'seo_description' => null,
-                'sort_order' => $index + 1,
-            ]);
+            Category::firstOrCreate(
+                ['slug' => str($name)->slug()],
+                [
+                    'name' => $name,
+                    'description' => null,
+                    'image' => null,
+                    'is_featured' => false,
+                    'status' => 'active',
+                    'seo_title' => null,
+                    'seo_description' => null,
+                    'sort_order' => $index + 1,
+                ],
+            );
         }
     }
 }

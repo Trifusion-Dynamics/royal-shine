@@ -7,15 +7,19 @@ use App\Filament\Resources\CollectionResource\RelationManagers;
 use App\Models\Collection;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
-class CollectionResource extends Resource
+class CollectionResource extends AuthorizedResource
 {
     protected static ?string $model = Collection::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+
+    protected static ?string $navigationGroup = 'Catalogue';
+
+    protected static string $permissionModule = 'collections';
 
 
     public static function form(Form $form): Form
@@ -24,7 +28,9 @@ class CollectionResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn (?string $state, $set) => $set('slug', Str::slug($state ?? ''))),
                 Forms\Components\TextInput::make('slug')
                     ->required()
                     ->maxLength(255)
@@ -33,7 +39,8 @@ class CollectionResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\FileUpload::make('image')
                     ->image()
-                    ->maxSize(2048)
+                    ->maxSize(config('royal_shine.upload_max_size_kb'))
+                    ->disk(config('royal_shine.upload_disk'))
                     ->directory('collections'),
                 Forms\Components\Toggle::make('is_featured')
                     ->required(),
@@ -87,6 +94,11 @@ class CollectionResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('preview')
+                    ->label('Preview')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->url(fn (Collection $record): string => route('collection.show', $record->slug))
+                    ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -113,4 +125,3 @@ class CollectionResource extends Resource
         ];
     }
 }
-

@@ -7,15 +7,18 @@ use App\Filament\Resources\BannerResource\RelationManagers;
 use App\Models\Banner;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class BannerResource extends Resource
+class BannerResource extends AuthorizedResource
 {
     protected static ?string $model = Banner::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-photo';
+
+    protected static ?string $navigationGroup = 'Website Content';
+
+    protected static string $permissionModule = 'banners';
 
 
     public static function form(Form $form): Form
@@ -25,8 +28,16 @@ class BannerResource extends Resource
                 Forms\Components\FileUpload::make('image')
                     ->image()
                     ->required()
-                    ->maxSize(2048)
+                    ->maxSize(config('royal_shine.upload_max_size_kb'))
+                    ->disk(config('royal_shine.upload_disk'))
                     ->directory('banners'),
+                Forms\Components\FileUpload::make('mobile_image')
+                    ->image()
+                    ->maxSize(config('royal_shine.upload_max_size_kb'))
+                    ->disk(config('royal_shine.upload_disk'))
+                    ->directory('banners'),
+                Forms\Components\TextInput::make('alt_text')
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('heading')
                     ->required()
                     ->maxLength(255),
@@ -48,6 +59,9 @@ class BannerResource extends Resource
                     ->required()
                     ->numeric()
                     ->default(0),
+                Forms\Components\DateTimePicker::make('starts_at'),
+                Forms\Components\DateTimePicker::make('ends_at')
+                    ->after('starts_at'),
             ]);
     }
 
@@ -57,6 +71,9 @@ class BannerResource extends Resource
             ->reorderable('sort_order')
             ->columns([
                 Tables\Columns\ImageColumn::make('image'),
+                Tables\Columns\ImageColumn::make('mobile_image')
+                    ->label('Mobile image')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('heading')
                     ->searchable()
                     ->sortable(),
@@ -105,4 +122,3 @@ class BannerResource extends Resource
         ];
     }
 }
-

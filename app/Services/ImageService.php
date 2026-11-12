@@ -12,11 +12,21 @@ class ImageService
             return asset('images/placeholder.svg');
         }
 
-        if (Storage::disk('public')->exists($path)) {
-            return asset('storage/' . $path);
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            return $path;
         }
 
-        return $path;
+        $disk = Storage::disk(config('royal_shine.upload_disk'));
+
+        if ($disk->exists($path)) {
+            return $disk->url($path);
+        }
+
+        if (is_file(public_path($path))) {
+            return asset($path);
+        }
+
+        return asset('images/placeholder.svg');
     }
 
     public function dimensions(?string $path): array
@@ -25,19 +35,13 @@ class ImageService
             return ['width' => 400, 'height' => 400];
         }
 
-        $disk = 'public';
+        $disk = Storage::disk(config('royal_shine.upload_disk'));
 
-        if (! Storage::disk($disk)->exists($path)) {
+        if (! $disk->exists($path)) {
             return ['width' => 400, 'height' => 400];
         }
 
-        $localPath = Storage::disk($disk)->path($path);
-
-        if (! file_exists($localPath)) {
-            return ['width' => 400, 'height' => 400];
-        }
-
-        $size = @getimagesize($localPath);
+        $size = getimagesizefromstring($disk->get($path));
 
         if ($size === false) {
             return ['width' => 400, 'height' => 400];

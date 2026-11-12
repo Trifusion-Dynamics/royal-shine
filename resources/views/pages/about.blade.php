@@ -14,13 +14,13 @@
                 @else
                     <div class="prose prose-lg text-[#666] leading-relaxed space-y-6">
                         <p class="text-lg">
-                            Royal Shine is a premium jewellery brand dedicated to crafting timeless pieces with care, precision, and passion. Each design in our collection tells a story — of tradition, of elegance, and of the moments that matter most.
+                            Royal Shine brings together jewellery for celebrations, thoughtful gifts and everyday style. Our catalogue makes it easy to explore each piece and ask our team for details.
                         </p>
                         <p>
-                            From the finest gold to the most exquisite gemstones, we source only the best materials to create jewellery that you'll treasure for generations. Our artisans combine age-old techniques with modern design sensibilities to bring you pieces that are both classic and contemporary.
+                            Discover a range of designs shaped by timeless forms and contemporary details. Product pages share the available materials and specifications so you can make an informed enquiry.
                         </p>
                         <p>
-                            Whether you're looking for a statement necklace for your wedding, elegant earrings for everyday wear, or a custom piece designed just for you, Royal Shine is here to make your vision a reality.
+                            Whether you are looking for a statement necklace, elegant earrings or a meaningful gift, browse the catalogue and get in touch with the Royal Shine team.
                         </p>
                     </div>
                 @endif
@@ -35,7 +35,7 @@
                     </div>
                     <div class="absolute bottom-6 left-6 bg-white p-6 shadow-xl border border-[#e5e5e5]">
                         <h3 class="font-serif font-bold text-[#1a1a1a] text-lg mb-2">Our Craftsmanship</h3>
-                        <p class="text-sm text-[#666]">Every piece is handcrafted with attention to detail, using 9K, 14K, and 18K gold with certified gemstones.</p>
+                        <p class="text-sm text-[#666]">Explore each product page for the materials, purity and stone information available for that design.</p>
                     </div>
                 </div>
             </div>
@@ -56,14 +56,14 @@
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                         </div>
                         <h4 class="font-serif font-bold text-[#1a1a1a] mb-2">Certified Purity</h4>
-                        <p class="text-sm text-[#666]">9K, 14K, and 18K gold with hallmark certification guaranteed.</p>
+                        <p class="text-sm text-[#666]">Product specifications are listed individually and can be confirmed with our team before you enquire.</p>
                     </div>
                     <div class="text-center p-6">
                         <div class="w-12 h-12 bg-[#d4a373]/10 text-[#d4a373] rounded-full flex items-center justify-center mx-auto mb-4">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
                         </div>
                         <h4 class="font-serif font-bold text-[#1a1a1a] mb-2">Customer First</h4>
-                        <p class="text-sm text-[#666]">Dedicated support via WhatsApp, phone, and email for all your queries.</p>
+                        <p class="text-sm text-[#666]">Contact details appear here once they have been configured by the Royal Shine team.</p>
                     </div>
                 </div>
             </div>

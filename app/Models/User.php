@@ -24,6 +24,7 @@ class User extends Authenticatable implements FilamentUser
         'email',
         'password',
         'is_admin',
+        'role',
     ];
 
     /**
@@ -46,11 +47,53 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->is_admin;
+        return $this->is_admin && in_array($this->role, [
+            'super_admin',
+            'admin',
+            'content_manager',
+            'enquiry_manager',
+        ], true);
+    }
+
+    public function canAccessModule(string $module): bool
+    {
+        return match ($this->role) {
+            'super_admin' => true,
+            'admin' => in_array($module, [
+                'dashboard',
+                'products',
+                'categories',
+                'collections',
+                'banners',
+                'gallery',
+                'pages',
+                'testimonials',
+                'enquiries',
+                'customers',
+                'settings',
+            ], true),
+            'content_manager' => in_array($module, [
+                'dashboard',
+                'products',
+                'categories',
+                'collections',
+                'banners',
+                'gallery',
+                'pages',
+                'testimonials',
+            ], true),
+            'enquiry_manager' => in_array($module, [
+                'dashboard',
+                'enquiries',
+                'customers',
+            ], true),
+            default => false,
+        };
     }
 }

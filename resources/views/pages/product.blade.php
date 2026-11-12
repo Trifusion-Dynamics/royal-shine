@@ -20,30 +20,45 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid lg:grid-cols-2 gap-12">
             <!-- Image Gallery -->
-            <div class="space-y-6">
-                <div class="relative aspect-square bg-[#f3f3f3] overflow-hidden shadow-sm">
-                    <x-image
-                        :path="$primary->image ?? $galleryImages->first()?->image"
-                        :alt="$product->name"
-                        class="w-full h-full object-cover cursor-pointer"
-                        loading="eager"
-                    />
+            <div x-data="{ open: false, images: @js($imageUrls), currentIndex: 0 }"
+                @keydown.escape.window="open = false"
+                @keydown.arrow-right.window="if (open) currentIndex = (currentIndex + 1) % images.length"
+                @keydown.arrow-left.window="if (open) currentIndex = (currentIndex + images.length - 1) % images.length"
+                class="space-y-4">
+                <div class="relative aspect-square overflow-hidden bg-[#f3f3f3] shadow-sm">
+                    <button type="button" @click="open = true" class="h-full w-full cursor-zoom-in" aria-label="Open product image gallery">
+                        <img x-bind:src="images[currentIndex]" alt="{{ $product->name }}" class="h-full w-full object-cover" loading="eager">
+                    </button>
                 </div>
 
                 @if ($galleryImages->count() > 1)
-                    <div class="grid grid-cols-4 gap-2">
-                        @foreach ($galleryImages as $img)
-                            <div class="aspect-square bg-[#f3f3f3] overflow-hidden cursor-pointer hover:border-[#d4a373] hover:border-2 transition-colors group">
-                                <x-image
-                                    :path="$img->image"
-                                    :alt="$product->name"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                                    loading="lazy"
-                                />
-                            </div>
+                    <div class="flex gap-3 overflow-x-auto pb-2" aria-label="Product images">
+                        @foreach ($galleryImages as $index => $image)
+                            <button type="button" @click="currentIndex = {{ $index }}"
+                                class="h-20 w-20 shrink-0 overflow-hidden border-2"
+                                :class="currentIndex === {{ $index }} ? 'border-[#b08548]' : 'border-transparent'"
+                                aria-label="View product image {{ $index + 1 }}">
+                                <img src="{{ $imageUrls[$index] }}" alt="{{ $image->alt_text ?: $product->name }}" class="h-full w-full object-cover" loading="lazy">
+                            </button>
                         @endforeach
                     </div>
                 @endif
+
+                <!-- Lightbox -->
+                <div x-cloak x-show="open" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+                    role="dialog" aria-modal="true" aria-label="Product image gallery" @click.self="open = false">
+                    <button type="button" @click="open = false" class="absolute right-4 top-4 z-10 text-3xl text-white" aria-label="Close gallery">&times;</button>
+                    <button type="button" @click="currentIndex = (currentIndex + images.length - 1) % images.length" class="absolute left-4 top-1/2 z-10 -translate-y-1/2 text-4xl text-white hover:text-[#d4a373]" x-show="images.length > 1" aria-label="Previous image">&lsaquo;</button>
+                    <button type="button" @click="currentIndex = (currentIndex + 1) % images.length" class="absolute right-4 top-1/2 z-10 -translate-y-1/2 text-4xl text-white hover:text-[#d4a373]" x-show="images.length > 1" aria-label="Next image">&rsaquo;</button>
+                    <div class="relative flex max-h-[90vh] max-w-4xl items-center justify-center">
+                        <template x-for="(image, index) in images" :key="index">
+                            <img x-show="open && currentIndex === index" x-bind:src="image" class="max-h-[85vh] max-w-full object-contain shadow-2xl" alt="{{ $product->name }}" loading="eager">
+                        </template>
+                    </div>
+                    <div class="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/50 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm">
+                        <span x-text="currentIndex + 1"></span> / <span x-text="images.length"></span>
+                    </div>
+                </div>
             </div>
 
             <!-- Product Details -->

@@ -7,18 +7,21 @@ use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 
-class ProductResource extends Resource
+class ProductResource extends AuthorizedResource
 {
     protected static ?string $model = Product::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
+
+    protected static ?string $navigationGroup = 'Catalogue';
+
+    protected static string $permissionModule = 'products';
 
 
     public static function form(Form $form): Form
@@ -35,7 +38,8 @@ class ProductResource extends Resource
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255)
-                            ->afterStateUpdated(fn(string $state, $set) => $set('slug', Str::slug($state))),
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn(?string $state, $set) => $set('slug', Str::slug($state ?? ''))),
                         Forms\Components\TextInput::make('slug')
                             ->required()
                             ->maxLength(255)
@@ -64,17 +68,20 @@ class ProductResource extends Resource
                 Forms\Components\Section::make('Pricing')
                     ->schema([
                         Forms\Components\Toggle::make('price_on_request')
-                            ->label('Price on Request'),
+                            ->label('Price on Request')
+                            ->afterStateUpdated(fn(bool $state, $set) => $state ? $set('price', null) : null),
                         Forms\Components\TextInput::make('price')
                             ->numeric()
-                            ->prefix('\u20B9')
-                            ->disabled(fn(callable $get) => (bool) $get('price_on_request')),
+                            ->prefix('₹')
+                            ->disabled(fn(callable $get) => (bool) $get('price_on_request'))
+                            ->dehydrated(fn(callable $get) => ! (bool) $get('price_on_request')),
                         Forms\Components\Toggle::make('is_featured')
                             ->required(),
                         Forms\Components\Select::make('status')
                             ->options([
                                 'draft' => 'Draft',
                                 'published' => 'Published',
+                                'inactive' => 'Inactive',
                             ])
                             ->required()
                             ->default('draft'),
@@ -103,11 +110,26 @@ class ProductResource extends Resource
 
                 Forms\Components\Section::make('Images')
                     ->schema([
-                        Forms\Components\FileUpload::make('images')
-                            ->image()
-                            ->maxSize(2048)
-                            ->multiple()
-                            ->directory('products'),
+                        Forms\Components\Repeater::make('images')
+                            ->relationship()
+                            ->schema([
+                                Forms\Components\FileUpload::make('image')
+                                    ->image()
+                                    ->maxSize(config('royal_shine.upload_max_size_kb'))
+                                    ->disk(config('royal_shine.upload_disk'))
+                                    ->directory('products')
+                                    ->required(),
+                                Forms\Components\TextInput::make('alt_text')
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('sort_order')
+                                    ->numeric()
+                                    ->default(0),
+                                Forms\Components\Toggle::make('is_primary')
+                                    ->label('Primary image'),
+                            ])
+                            ->orderColumn('sort_order')
+                            ->defaultItems(0)
+                            ->columnSpanFull(),
                     ])
                     ->columnSpanFull(),
 
@@ -157,6 +179,7 @@ class ProductResource extends Resource
                     ->options([
                         'draft' => 'Draft',
                         'published' => 'Published',
+                        'inactive' => 'Inactive',
                     ])
                     ->searchable(),
             ])
@@ -165,9 +188,12 @@ class ProductResource extends Resource
                     ->options([
                         'draft' => 'Draft',
                         'published' => 'Published',
+                        'inactive' => 'Inactive',
                     ]),
                 Tables\Filters\SelectFilter::make('category')
                     ->relationship('category', 'name'),
+                Tables\Filters\SelectFilter::make('collection')
+                    ->relationship('collection', 'name'),
                 Tables\Filters\SelectFilter::make('metal_type')
                     ->label('Metal Type')
                     ->options([
@@ -187,6 +213,12 @@ class ProductResource extends Resource
                     ->label('Featured'),
             ])
             ->actions([
+                Tables\Actions\Action::make('preview')
+                    ->label('Preview')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->url(fn (Product $record): string => route('product.show', $record->slug))
+                    ->visible(fn (Product $record): bool => $record->status === 'published')
+                    ->openUrlInNewTab(),
                 Tables\Actions\Action::make('toggleStatus')
                     ->label(fn(Product $record) => $record->status === 'published' ? 'Unpublish' : 'Publish')
                     ->icon(fn(Product $record) => $record->status === 'published' ? 'heroicon-o-eye-slash' : 'heroicon-o-check-circle')
@@ -220,4 +252,3 @@ class ProductResource extends Resource
         ];
     }
 }
-

@@ -16,11 +16,14 @@ class Enquiry extends Model
         'name',
         'mobile',
         'email',
+        'subject',
+        'enquiry_type',
         'product_reference',
         'message',
         'status',
         'internal_notes',
         'follow_up_date',
+        'assigned_admin_id',
     ];
 
     protected $casts = [
@@ -31,5 +34,10 @@ class Enquiry extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function assignedAdmin(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_admin_id');
     }
 }

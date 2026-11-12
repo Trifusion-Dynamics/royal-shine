@@ -6,6 +6,9 @@ use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Settings;
 use App\Filament\Widgets\DashboardStats;
 use App\Filament\Widgets\EnquiryStatusChart;
+use App\Filament\Widgets\EnquiryTrendChart;
+use App\Filament\Widgets\ProductCategoryChart;
+use App\Filament\Widgets\RecentProducts;
 use App\Filament\Widgets\RecentEnquiries;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -32,6 +35,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path(env('ADMIN_PATH', 'admin'))
             ->login()
+            ->passwordReset()
+            ->profile()
+            ->databaseNotifications()
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -45,7 +51,10 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 DashboardStats::class,
                 EnquiryStatusChart::class,
+                EnquiryTrendChart::class,
+                ProductCategoryChart::class,
                 RecentEnquiries::class,
+                RecentProducts::class,
             ])
             ->middleware([
                 EncryptCookies::class,
