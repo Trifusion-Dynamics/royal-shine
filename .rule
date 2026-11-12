@@ -1,0 +1,16 @@
+Project: Royal Shine, a jewellery catalogue website with a Filament admin panel, built on Laravel.
+
+HOSTING CONSTRAINT: The final hosting is not confirmed. It will probably be Hostinger shared hosting managed through cPanel/hPanel, with limited SSH access and no root access. Write all code to be shared-hosting-safe:
+
+1. Do NOT depend on Redis, Docker, Supervisor, queue workers, Node.js on the server, Horizon, Octane, or any long-running process.
+2. Set defaults in .env.example: CACHE_STORE=file, SESSION_DRIVER=file (or database), QUEUE_CONNECTION=sync, MAIL via SMTP.
+3. All frontend assets (Tailwind, Alpine, Vite) are built locally. The built files in public/build must be deployable without running npm on the server.
+4. Use GD for image processing, not Imagick.
+5. File uploads must use a configurable filesystem disk (FILESYSTEM_DISK in .env). Do not hardcode paths. The app must still work if "php artisan storage:link" is not possible on the host.
+6. Never use exec(), shell_exec(), or symlink() inside application code.
+7. The app must work whether the web root points to /public or when public files are served from public_html with the Laravel core outside it. Use asset() and url() helpers only, never hardcoded absolute paths.
+8. Keep dependencies minimal. Before adding any Composer package, tell me why it is needed and whether it works on shared hosting.
+9. Keep memory and execution time use low: paginate everything, avoid loading large collections, process image uploads efficiently.
+10. Do not write any deployment scripts or CI/CD yet. Deployment will be handled later.
+
+Acknowledge these rules and confirm you will follow them in every future task.

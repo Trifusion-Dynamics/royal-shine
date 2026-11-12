@@ -1,0 +1,88 @@
+@import 'swiper/css';
+@import 'swiper/css/pagination';
+@import 'swiper/css/navigation';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --color-ivory: #fdfaf5;
+        --color-gold: #d4a373;
+        --color-gold-dark: #b08548;
+        --color-charcoal: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--color-ivory);
+        color: var(--color-charcoal);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    h1, h2, h3, h4, h5, h6, .serif {
+        font-family: 'Playfair Display', Georgia, serif;
+    }
+}
+
+@layer components {
+    .btn-gold {
+        @apply bg-[#d4a373] text-white px-6 py-3 rounded-none font-medium transition-colors hover:bg-[#b08548] focus:outline-none focus:ring-2 focus:ring-[#d4a373] focus:ring-offset-2 focus:ring-offset-[#fdfaf5];
+    }
+
+    .btn-outline {
+        @apply border-2 border-[#d4a373] text-[#d4a373] px-6 py-3 rounded-none font-medium transition-colors hover:bg-[#d4a373] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#d4a373] focus:ring-offset-2 focus:ring-offset-[#fdfaf5];
+    }
+
+    .section-heading {
+        @apply text-center mb-12;
+    }
+
+    .section-heading h2 {
+        @apply text-3xl md:text-4xl text-[#1a1a1a] mb-4 serif;
+    }
+
+    .section-heading p {
+        @apply text-[#666] max-w-2xl mx-auto;
+    }
+
+    .product-card {
+        @apply bg-white border border-[#e5e5e5] rounded-none p-4 hover:border-[#d4a373] transition-colors;
+    }
+
+    .category-card {
+        @apply bg-white border border-[#e5e5e5] rounded-none p-6 text-center hover:border-[#d4a373] transition-colors cursor-pointer;
+    }
+
+    .lazy-img {
+        @apply bg-[#f3f3f3];
+    }
+}
+
+@layer utilities {
+    .text-gold {
+        color: #d4a373;
+    }
+    .border-gold {
+        border-color: #d4a373;
+    }
+}
+
+.swiper {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    color: #d4a373 !important;
+}
+
+.swiper-pagination-bullet {
+    background: #d4a373 !important;
+    opacity: 0.5 !important;
+}
+
+.swiper-pagination-bullet-active {
+    opacity: 1 !important;
+}
