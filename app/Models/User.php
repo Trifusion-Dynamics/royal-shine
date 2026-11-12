@@ -96,4 +96,11 @@ class User extends Authenticatable implements FilamentUser
             default => false,
         };
     }
+
+    public function isLastSuperAdmin(): bool
+    {
+        return $this->is_admin
+            && $this->role === 'super_admin'
+            && static::query()->where('is_admin', true)->where('role', 'super_admin')->count() <= 1;
+    }
 }

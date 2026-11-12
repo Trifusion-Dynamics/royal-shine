@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\UserResource;
+use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class AdminAuthorizationTest extends TestCase
@@ -44,5 +47,23 @@ class AdminAuthorizationTest extends TestCase
         ]);
 
         $this->actingAs($user)->get('/admin')->assertForbidden();
+    }
+
+    public function test_last_super_admin_cannot_be_demoted_or_deleted(): void
+    {
+        $user = User::factory()->create([
+            'is_admin' => true,
+            'role' => 'super_admin',
+        ]);
+        $this->actingAs($user);
+
+        $this->assertFalse(UserResource::canDelete($user));
+
+        Livewire::test(EditUser::class, ['record' => $user->getRouteKey()])
+            ->fillForm(['role' => 'admin'])
+            ->call('save')
+            ->assertHasFormErrors(['role']);
+
+        $this->assertSame('super_admin', $user->fresh()->role);
     }
 }

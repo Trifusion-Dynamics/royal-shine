@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class UserResource extends AuthorizedResource
 {
@@ -80,10 +81,16 @@ class UserResource extends AuthorizedResource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
-                    ->disabled(fn (User $record): bool => $record->is(auth()->user())
-                        || ($record->role === 'super_admin' && User::where('role', 'super_admin')->count() <= 1)),
+                    ->disabled(fn (User $record): bool => ! static::canDelete($record)),
             ])
             ->bulkActions([]);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return parent::canDelete($record)
+            && ! $record->is(auth()->user())
+            && ! $record->isLastSuperAdmin();
     }
 
     public static function getEloquentQuery(): Builder
