@@ -4,7 +4,7 @@
 ])
 
 @php
-    $firstImage = $product->images->first();
+    $firstImage = $product->images->firstWhere('is_primary', true) ?? $product->images->first();
     $categoryName = optional($product->category)->name;
 @endphp
 
@@ -33,8 +33,9 @@
     </h3>
 
     @if ($categoryName)
-        <p class="text-xs text-[#666] mb-2">{{ $categoryName }}</p>
+        <p class="text-xs text-[#666] mb-1">{{ $categoryName }}</p>
     @endif
+    <p class="mb-2 text-[11px] uppercase tracking-wider text-[#999]">SKU: {{ $product->sku }}</p>
 
     <div class="flex items-baseline gap-2 mb-2">
         @if ($product->price_on_request)
@@ -46,7 +47,7 @@
         @endif
     </div>
 
-    @if ($link && $product->price_on_request === false && $product->price)
+    @if ($link)
         <a
             href="{{ route('enquiry.create', ['product' => $product->id]) }}"
             class="btn-gold block text-center text-sm"

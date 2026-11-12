@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\ProductResource\RelationManagers;
 
-use App\Models\ProductImage;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -22,7 +21,8 @@ class ProductImagesRelationManager extends RelationManager
                 Forms\Components\FileUpload::make('image')
                     ->image()
                     ->required()
-                    ->maxSize(2048)
+                    ->maxSize(config('royal_shine.upload_max_size_kb'))
+                    ->disk(config('royal_shine.upload_disk'))
                     ->directory('products'),
                 Forms\Components\TextInput::make('alt_text')
                     ->maxLength(255),

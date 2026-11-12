@@ -29,9 +29,15 @@ class Banner extends Model
         'cta_url',
         'status',
         'sort_order',
+        'mobile_image',
+        'alt_text',
+        'starts_at',
+        'ends_at',
     ];
 
     protected $casts = [
         'sort_order' => 'integer',
+        'starts_at' => 'datetime',
+        'ends_at' => 'datetime',
     ];
 }

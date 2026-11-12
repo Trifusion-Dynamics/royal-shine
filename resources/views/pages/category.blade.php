@@ -33,33 +33,39 @@
                 'artificial' => 'Artificial',
                 'other' => 'Other',
             ];
-            $metalOptions = collect($metalTypes)
-                ->mapWithKeys(function ($metal) use ($metalLabels) {
-                    $value = $metal instanceof \BackedEnum ? $metal->value : (string) $metal;
-                    return [$value => $metalLabels[$value] ?? ucfirst($value)];
-                })
-                ->all();
-            $purityOptions = collect($goldPurities)
-                ->mapWithKeys(function ($purity) {
-                    $value = $purity instanceof \BackedEnum ? $purity->value : (string) $purity;
-                    return [$value => $value . ' Gold'];
-                })
-                ->all();
+            $metalOptions = [];
+            foreach ($metalTypes as $metal) {
+                $value = method_exists($metal, 'value') ? $metal->value : (string) $metal;
+                $metalOptions[$value] = $metalLabels[$value] ?? ucfirst($value);
+            }
+            $purityOptions = [];
+            foreach ($goldPurities as $purity) {
+                $purityOptions[$purity] = $purity . ' Gold';
+            }
         @endphp
 
         <!-- Controls Row -->
-        <form method="GET" action="{{ route('category.show', $category->slug) }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <form method="GET" action="{{ route('category.show', $category->slug) }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
             <!-- Sort -->
             <div>
                 <label class="block text-xs font-medium text-[#666] uppercase tracking-wider mb-2">Sort By</label>
-                <x-filter-select name="sort" placeholder="Latest First" :selected="$sort" :options="$sortOptions" />
+                <select name="sort" class="w-full bg-white border border-[#e5e5e5] px-4 py-3 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373]" onchange="this.form.submit()">
+                    @foreach ($sortOptions as $value => $label)
+                        <option value="{{ $value }}" {{ request()->get('sort', 'latest') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <!-- Metal Filter -->
             @if ($metalTypes->count() > 0)
                 <div>
                     <label class="block text-xs font-medium text-[#666] uppercase tracking-wider mb-2">Metal Type</label>
-                    <x-filter-select name="metal_type" placeholder="All Metals" :selected="request()->get('metal_type', '')" :options="$metalOptions" />
+                    <select name="metal_type" class="w-full bg-white border border-[#e5e5e5] px-4 py-3 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373]" onchange="this.form.submit()">
+                        <option value="">All Metals</option>
+                        @foreach ($metalOptions as $value => $label)
+                            <option value="{{ $value }}" {{ request()->get('metal_type') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
                 </div>
             @endif
 
@@ -67,12 +73,41 @@
             @if ($goldPurities->count() > 0)
                 <div>
                     <label class="block text-xs font-medium text-[#666] uppercase tracking-wider mb-2">Gold Purity</label>
-                    <x-filter-select name="gold_purity" placeholder="All Purities" :selected="request()->get('gold_purity', '')" :options="$purityOptions" />
+                    <select name="gold_purity" class="w-full bg-white border border-[#e5e5e5] px-4 py-3 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373]" onchange="this.form.submit()">
+                        <option value="">All Purities</option>
+                        @foreach ($purityOptions as $value => $label)
+                            <option value="{{ $value }}" {{ request()->get('gold_purity') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+
+            @if ($collections->isNotEmpty())
+                <div>
+                    <label class="block text-xs font-medium text-[#666] uppercase tracking-wider mb-2">Collection</label>
+                    <select name="collection_id" class="w-full bg-white border border-[#e5e5e5] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373]" onchange="this.form.submit()">
+                        <option value="">All collections</option>
+                        @foreach ($collections as $collection)
+                            <option value="{{ $collection->id }}" {{ request('collection_id') == $collection->id ? 'selected' : '' }}>{{ $collection->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+
+            <!-- Price Range -->
+            @if ($hasPrices)
+                <div>
+                    <label class="block text-xs font-medium text-[#666] uppercase tracking-wider mb-2">Price Range (₹)</label>
+                    <div class="flex gap-2">
+                        <input type="number" name="min_price" value="{{ request()->get('min_price') }}" placeholder="Min" class="flex-1 px-3 py-3 border border-[#e5e5e5] rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373]">
+                        <input type="number" name="max_price" value="{{ request()->get('max_price') }}" placeholder="Max" class="flex-1 px-3 py-3 border border-[#e5e5e5] rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373]">
+                    </div>
+                    <button type="submit" class="w-full mt-2 btn-gold text-xs py-2">Filter</button>
                 </div>
             @endif
 
             <!-- Search -->
-            <div class="relative">
+            <div class="relative col-span-1 sm:col-span-1 lg:col-span-1">
                 <label class="block text-xs font-medium text-[#666] uppercase tracking-wider mb-2">Search</label>
                 <div class="relative">
                     <input type="text" name="search" value="{{ request()->get('search', '') }}"
@@ -94,7 +129,7 @@
                 <span class="text-sm text-[#666]">
                     Showing {{ $products->firstItem() }}-{{ $products->lastItem() }} of {{ $products->total() }} products
                 </span>
-                @if (request()->filled('search') || request()->filled('metal_type') || request()->filled('gold_purity') || request()->filled('sort'))
+                @if (request()->filled('search') || request()->filled('metal_type') || request()->filled('gold_purity') || request()->filled('collection_id') || request()->filled('sort') || request()->filled('min_price') || request()->filled('max_price'))
                     <a href="{{ route('category.show', $category->slug) }}" class="text-sm text-[#666] hover:text-[#d4a373]">Clear All Filters</a>
                 @endif
             </div>

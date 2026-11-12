@@ -8,18 +8,21 @@ use App\Models\Enquiry;
 use App\Enums\EnquiryStatus;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 
-class EnquiryResource extends Resource
+class EnquiryResource extends AuthorizedResource
 {
     protected static ?string $model = Enquiry::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-ellipsis';
+
+    protected static ?string $navigationGroup = 'Customers & Enquiries';
+
+    protected static string $permissionModule = 'enquiries';
 
 
     public static function form(Form $form): Form
@@ -28,6 +31,18 @@ class EnquiryResource extends Resource
             ->schema([
                 Forms\Components\Select::make('product_id')
                     ->relationship('product', 'name'),
+                Forms\Components\Select::make('assigned_admin_id')
+                    ->label('Assigned admin')
+                    ->options(fn (): array => \App\Models\User::where('is_admin', true)->orderBy('name')->pluck('name', 'id')->all())
+                    ->searchable(),
+                Forms\Components\Select::make('enquiry_type')
+                    ->options([
+                        'product' => 'Product enquiry',
+                        'contact' => 'Contact message',
+                    ])
+                    ->required(),
+                Forms\Components\TextInput::make('subject')
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -56,8 +71,18 @@ class EnquiryResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('enquiry_type')
+                    ->label('Type')
+                    ->badge()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('product.name')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('subject')
+                    ->searchable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('assignedAdmin.name')
+                    ->label('Assigned to')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
@@ -131,4 +156,3 @@ class EnquiryResource extends Resource
         ];
     }
 }
-

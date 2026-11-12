@@ -7,15 +7,18 @@ use App\Filament\Resources\GalleryResource\RelationManagers;
 use App\Models\Gallery;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class GalleryResource extends Resource
+class GalleryResource extends AuthorizedResource
 {
     protected static ?string $model = Gallery::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-photo';
+
+    protected static ?string $navigationGroup = 'Website Content';
+
+    protected static string $permissionModule = 'gallery';
 
 
     public static function form(Form $form): Form
@@ -25,7 +28,8 @@ class GalleryResource extends Resource
                 Forms\Components\FileUpload::make('image')
                     ->image()
                     ->required()
-                    ->maxSize(2048)
+                    ->maxSize(config('royal_shine.upload_max_size_kb'))
+                    ->disk(config('royal_shine.upload_disk'))
                     ->directory('gallery'),
                 Forms\Components\TextInput::make('title')
                     ->maxLength(255),
@@ -100,4 +104,3 @@ class GalleryResource extends Resource
         ];
     }
 }
-

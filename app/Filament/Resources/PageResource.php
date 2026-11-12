@@ -7,15 +7,18 @@ use App\Filament\Resources\PageResource\RelationManagers;
 use App\Models\Page;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class PageResource extends Resource
+class PageResource extends AuthorizedResource
 {
     protected static ?string $model = Page::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document';
+
+    protected static ?string $navigationGroup = 'Website Content';
+
+    protected static string $permissionModule = 'pages';
 
 
     public static function form(Form $form): Form
@@ -98,4 +101,3 @@ class PageResource extends Resource
         ];
     }
 }
-

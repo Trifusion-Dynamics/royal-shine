@@ -26,9 +26,16 @@
                         $email = app(\App\Services\SettingsService::class)->get('email');
                         $address = app(\App\Services\SettingsService::class)->get('address');
                         $mapLink = app(\App\Services\SettingsService::class)->get('map_link');
+                        $businessHours = app(\App\Services\SettingsService::class)->get('business_hours');
                     @endphp
 
                     <div class="space-y-6">
+                        @if ($businessHours)
+                            <div>
+                                <p class="font-medium text-[#1a1a1a]">Business Hours</p>
+                                <p class="text-[#666]">{{ $businessHours }}</p>
+                            </div>
+                        @endif
                         @if ($phone)
                             <div class="flex items-start gap-4">
                                 <div class="w-10 h-10 bg-[#d4a373]/10 text-[#d4a373] rounded-full flex items-center justify-center flex-shrink-0">
@@ -101,7 +108,7 @@
                 <!-- Enquiry Form -->
                 <div class="bg-[#fdfaf5] border border-[#e5e5e5] p-8">
                     <h3 class="font-serif font-bold text-[#1a1a1a] text-2xl mb-6">Send Us a Message</h3>
-                    <form action="{{ route('enquiry.store') }}" method="POST" class="space-y-6">
+                    <form action="{{ route('contact.store') }}" method="POST" class="space-y-6">
                         @csrf
                         <input type="text" name="website" value="" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
 
@@ -121,11 +128,18 @@
                                 @error('mobile') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                             </div>
                             <div class="sm:col-span-2">
-                                <label class="block text-sm font-medium text-[#1a1a1a] mb-1">Email</label>
-                                <input type="email" name="email" value="{{ old('email') }}"
+                                <label class="block text-sm font-medium text-[#1a1a1a] mb-1">Email <span class="text-[#d4a373]">*</span></label>
+                                <input type="email" name="email" value="{{ old('email') }}" required
                                     class="w-full px-4 py-3 border border-[#e5e5e5] rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373] @error('email') border-red-500 @enderror"
                                     @error('email') aria-invalid="true" @enderror>
                                 @error('email') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-sm font-medium text-[#1a1a1a] mb-1">Subject <span class="text-[#d4a373]">*</span></label>
+                                <input type="text" name="subject" value="{{ old('subject') }}" required maxlength="255"
+                                    class="w-full px-4 py-3 border border-[#e5e5e5] rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-[#d4a373] @error('subject') border-red-500 @enderror"
+                                    @error('subject') aria-invalid="true" @enderror>
+                                @error('subject') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block text-sm font-medium text-[#1a1a1a] mb-1">Message <span class="text-[#d4a373]">*</span></label>

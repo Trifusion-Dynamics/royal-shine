@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Enquiry;
+use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 
@@ -11,6 +12,11 @@ class RecentEnquiries extends TableWidget
     protected static ?string $heading = 'Recent Enquiries';
 
     protected int | string | array $columnSpan = 'full';
+
+    public static function canView(): bool
+    {
+        return auth()->user()?->canAccessModule('enquiries') ?? false;
+    }
 
     public function table(Table $table): Table
     {
@@ -21,6 +27,9 @@ class RecentEnquiries extends TableWidget
                     ->take(10)
             )
             ->columns([
+                Tables\Columns\TextColumn::make('enquiry_type')
+                    ->label('Type')
+                    ->badge(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('mobile')

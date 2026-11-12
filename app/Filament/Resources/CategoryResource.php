@@ -7,17 +7,21 @@ use App\Filament\Resources\CategoryResource\RelationManagers;
 use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
-class CategoryResource extends Resource
+class CategoryResource extends AuthorizedResource
 {
     protected static ?string $model = Category::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $navigationGroup = 'Catalogue';
+
+    protected static string $permissionModule = 'categories';
 
 
     public static function form(Form $form): Form
@@ -26,7 +30,9 @@ class CategoryResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn (?string $state, $set) => $set('slug', Str::slug($state ?? ''))),
                 Forms\Components\TextInput::make('slug')
                     ->required()
                     ->maxLength(255)
@@ -35,7 +41,8 @@ class CategoryResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\FileUpload::make('image')
                     ->image()
-                    ->maxSize(2048)
+                    ->maxSize(config('royal_shine.upload_max_size_kb'))
+                    ->disk(config('royal_shine.upload_disk'))
                     ->directory('categories'),
                 Forms\Components\Toggle::make('is_featured')
                     ->required(),
@@ -93,28 +100,10 @@ class CategoryResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
-                    ->before(function (Category $record) {
-                        if ($record->products()->exists()) {
-                            throw new \Illuminate\Validation\ValidationException([
-                                'category' => 'Cannot delete this category because products are assigned to it.',
-                            ]);
-                        }
-                    }),
+                    ->disabled(fn(Category $record): bool => $record->products()->exists())
+                    ->tooltip('Reassign or remove the category products before deleting.'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->before(function ($records) {
-                            foreach ($records as $record) {
-                                if ($record->products()->exists()) {
-                                    throw new \Illuminate\Validation\ValidationException([
-                                        'category' => 'Cannot delete categories that have products assigned.',
-                                    ]);
-                                }
-                            }
-                        }),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getRelations(): array
@@ -133,4 +122,3 @@ class CategoryResource extends Resource
         ];
     }
 }
-

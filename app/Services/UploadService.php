@@ -18,9 +18,14 @@ class UploadService
     public static function fromConfig(): self
     {
         return new self(
-            disk: env('FILESYSTEM_DISK', 'public'),
-            maxSizeKb: (int) env('UPLOAD_MAX_SIZE_KB', 2048),
-            allowedMimes: explode(',', env('UPLOAD_ALLOWED_MIMES', 'image/jpeg,image/png,image/webp,image/gif')),
+            disk: config('royal_shine.upload_disk'),
+            maxSizeKb: config('royal_shine.upload_max_size_kb'),
+            allowedMimes: config('royal_shine.upload_allowed_mimes', [
+                'image/jpeg',
+                'image/png',
+                'image/webp',
+                'image/gif',
+            ]),
         );
     }
 
@@ -28,7 +33,7 @@ class UploadService
     {
         $this->validate($file);
 
-        $name = Str::uuid().'.'.$file->getClientOriginalExtension();
+        $name = Str::uuid().'.'.$file->extension();
 
         $path = $file->storeAs($folder, $name, [
             'disk' => $this->disk,
