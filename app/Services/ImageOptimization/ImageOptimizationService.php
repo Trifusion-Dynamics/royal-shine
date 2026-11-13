@@ -4,8 +4,6 @@ namespace App\Services\ImageOptimization;
 
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
-use Intervention\Image\Encoders\WebpEncoder;
-use Intervention\Image\Encoders\AvifEncoder;
 use App\Models\ImageOptimization;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
@@ -19,7 +17,6 @@ class ImageOptimizationService
         'thumbnail' => ['width' => 300, 'height' => 300, 'quality' => 80],
         'medium' => ['width' => 600, 'height' => 600, 'quality' => 85],
         'large' => ['width' => 1200, 'height' => 1200, 'quality' => 90],
-        'zoom' => ['width' => 1800, 'height' => 1800, 'quality' => 92],
     ];
 
     public function __construct()
@@ -62,6 +59,10 @@ class ImageOptimizationService
         // Convert URL to local path if possible
         $localPath = $this->urlToLocalPath($url, $originalPath);
 
+        if (!file_exists($localPath)) {
+            throw new \Exception("File not found: {$localPath}");
+        }
+
         // Get image dimensions
         list($width, $height) = getimagesize($localPath);
         $record->width = $width;
@@ -69,40 +70,91 @@ class ImageOptimizationService
         $record->mime_type = mime_content_type($localPath);
 
         // Get original file size
-        $record->original_size = filesize($localPath);
+        $record->original_size = (int) filesize($localPath);
 
-        // Read original image
-        $image = $this->manager->read($localPath);
+        $disk = Storage::disk(config('royal_shine.upload_disk'));
 
-        // Generate WebP
-        $webpPath = $this->generateVariant($record, $image, 'webp', null);
+        // Generate WebP (original size)
+        $webpPath = $this->generateVariant($localPath, 'webp', null, null);
         $record->webp_path = $webpPath;
 
         // Generate AVIF if supported
         if ($this->isAvifSupported()) {
-            $avifPath = $this->generateVariant($record, $image, 'avif', null);
+            $avifPath = $this->generateVariant($localPath, 'avif', null, null);
             $record->avif_path = $avifPath;
         }
 
         // Generate responsive variants
         foreach ($this->variants as $variantName => $config) {
-            $variantImage = $this->manager->read($localPath);
-            $variantImage->cover($config['width'], $config['height']);
-            $variantImage->save($this->getVariantPath($record, $variantName));
-
+            $variantPath = $this->generateVariant(
+                $localPath,
+                'webp',
+                $variantName,
+                ['width' => $config['width'], 'height' => $config['height'], 'quality' => $config['quality']]
+            );
             $pathKey = $variantName . '_path';
-            $record->{$pathKey} = $this->getVariantPath($record, $variantName);
+            $record->{$pathKey} = $variantPath;
         }
 
-        // Calculate optimized size (sum of all variants)
+        // Calculate optimized size
         $optimizedSize = 0;
         foreach (['webp_path', 'avif_path', 'thumbnail_path', 'medium_path', 'large_path'] as $pathKey) {
             $path = $record->{$pathKey};
-            if ($path && Storage::disk(config('royal_shine.upload_disk'))->exists($path)) {
-                $optimizedSize += Storage::disk(config('royal_shine.upload_disk'))->size($path);
+            if ($path && $disk->exists($path)) {
+                $optimizedSize += (int) $disk->size($path);
             }
         }
         $record->optimized_size = $optimizedSize;
+    }
+
+    protected function generateVariant(string $localPath, string $format, ?string $variantName, ?array $config): ?string
+    {
+        $disk = Storage::disk(config('royal_shine.upload_disk'));
+
+        // Build filename
+        $pathInfo = pathinfo($localPath);
+        $baseName = $pathInfo['filename'];
+
+        if ($variantName) {
+            $baseName .= '_' . $variantName . '_' . $config['width'] . 'x' . $config['height'];
+        }
+
+        $baseName .= '_' . $format;
+        $path = 'optimized/' . $baseName;
+
+        // Ensure directory exists using PHP mkdir
+        $diskRoot = $disk->path('');
+        $fullDir = rtrim($diskRoot, '/') . '/optimized';
+        if (!is_dir($fullDir)) {
+            mkdir($fullDir, 0755, true);
+        }
+
+        // Read image fresh for each variant
+        $image = $this->manager->read($localPath);
+
+        // Apply resize if variant
+        if ($variantName && $config) {
+            $image->cover($config['width'], $config['height']);
+        }
+
+        // Encode and save using Intervention Image v3 API
+        $encoder = match ($format) {
+            'webp' => new \Intervention\Image\Encoders\WebpEncoder(quality: $config['quality'] ?? 85),
+            'avif' => new \Intervention\Image\Encoders\AvifEncoder(quality: $config['quality'] ?? 85),
+            default => new \Intervention\Image\Encoders\WebpEncoder(quality: $config['quality'] ?? 85),
+        };
+
+        $encoded = $image->encode($encoder);
+
+        // Save using EncodedImage::save() or cast to string
+        try {
+            $encoded->save(Storage::disk(config('royal_shine.upload_disk'))->path($path));
+        } catch (\Throwable $e) {
+            // Fallback: cast to string
+            Storage::disk(config('royal_shine.upload_disk'))->put($path, (string) $encoded);
+        }
+
+        return $path;
     }
 
     protected function urlToLocalPath(string $url, string $originalPath): string
@@ -135,52 +187,6 @@ class ImageOptimizationService
         }
 
         return $url;
-    }
-
-    protected function generateVariant(ImageOptimization $record, \Intervention\Image\Image $image, string $format, ?array $resize): ?string
-    {
-        $disk = Storage::disk(config('royal_shine.upload_disk'));
-        $pathInfo = pathinfo($record->original_path);
-        $baseName = $pathInfo['filename'] . '_' . $format;
-
-        if ($resize) {
-            $baseName .= '_' . $resize['width'] . 'x' . $resize['height'];
-            $image->cover($resize['width'], $resize['height']);
-        }
-
-        $path = 'optimized/' . $baseName . '.' . $format;
-
-        // Ensure directory exists
-        $diskRoot = Storage::disk(config('royal_shine.upload_disk'))->path('');
-        $fullDir = rtrim($diskRoot, '/') . '/optimized';
-        if (!is_dir($fullDir)) {
-            mkdir($fullDir, 0755, true);
-        }
-
-        // Get the appropriate encoder
-        $encoder = match ($format) {
-            'webp' => new WebpEncoder(quality: $resize['quality'] ?? 85),
-            'avif' => new AvifEncoder(quality: $resize['quality'] ?? 85),
-            default => new WebpEncoder(quality: $resize['quality'] ?? 85),
-        };
-
-        // Encode to the target format
-        $encoded = $image->encode($encoder);
-
-        // Save to disk
-        Storage::disk(config('royal_shine.upload_disk'))->put($path, (string) $encoded);
-
-        return $path;
-    }
-
-    protected function getVariantPath(ImageOptimization $record, string $variantName): string
-    {
-        $pathInfo = pathinfo($record->original_path);
-        $baseName = $pathInfo['filename'] . '_' . $variantName;
-        $config = $this->variants[$variantName];
-        $baseName .= '_' . $config['width'] . 'x' . $config['height'] . '.webp';
-
-        return 'optimized/' . $baseName;
     }
 
     protected function isAvifSupported(): bool

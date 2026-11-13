@@ -4,10 +4,11 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use App\Models\ImageOptimization;
 
 class ImageService
 {
-    public function url(?string $path): string
+    public function url(?string $path, ?string $variant = null): string
     {
         if (empty($path)) {
             return asset('images/placeholder.svg');
@@ -15,6 +16,23 @@ class ImageService
 
         if (filter_var($path, FILTER_VALIDATE_URL)) {
             return $path;
+        }
+
+        // Check if there's an ImageOptimization record with optimized variants
+        $opt = ImageOptimization::where('original_path', $path)->first();
+
+        if ($opt && $variant && $opt->{$variant . '_path'}) {
+            return Storage::disk(config('royal_shine.upload_disk'))->url($opt->{$variant . '_path'});
+        }
+
+        // Return WebP version if available (best format for web)
+        if ($opt && $opt->webp_path) {
+            return Storage::disk(config('royal_shine.upload_disk'))->url($opt->webp_path);
+        }
+
+        // Return AVIF if available (even better compression)
+        if ($opt && $opt->avif_path) {
+            return Storage::disk(config('royal_shine.upload_disk'))->url($opt->avif_path);
         }
 
         // Check public folder first (for images copied from public/images/)
@@ -43,6 +61,12 @@ class ImageService
     {
         if (empty($path)) {
             return ['width' => 400, 'height' => 400];
+        }
+
+        // Check ImageOptimization record for dimensions
+        $opt = ImageOptimization::where('original_path', $path)->first();
+        if ($opt && $opt->width && $opt->height) {
+            return ['width' => $opt->width, 'height' => $opt->height];
         }
 
         // Check public folder first
