@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class ImageService
 {
@@ -16,14 +17,23 @@ class ImageService
             return $path;
         }
 
+        // Check public folder first (for images copied from public/images/)
+        $publicPath = public_path($path);
+        if (File::exists($publicPath)) {
+            return asset($path);
+        }
+
+        // Check storage disk
         $disk = Storage::disk(config('royal_shine.upload_disk'));
 
         if ($disk->exists($path)) {
             return $disk->url($path);
         }
 
-        if (is_file(public_path($path))) {
-            return asset($path);
+        // Check storage/app/public folder directly
+        $storagePath = storage_path('app/public/' . $path);
+        if (File::exists($storagePath)) {
+            return asset('storage/' . $path);
         }
 
         return asset('images/placeholder.svg');
@@ -35,18 +45,25 @@ class ImageService
             return ['width' => 400, 'height' => 400];
         }
 
+        // Check public folder first
+        $publicPath = public_path($path);
+        if (File::exists($publicPath)) {
+            $size = getimagesize($publicPath);
+            if ($size !== false) {
+                return ['width' => $size[0], 'height' => $size[1]];
+            }
+        }
+
+        // Check storage disk
         $disk = Storage::disk(config('royal_shine.upload_disk'));
 
-        if (! $disk->exists($path)) {
-            return ['width' => 400, 'height' => 400];
+        if ($disk->exists($path)) {
+            $size = getimagesizefromstring($disk->get($path));
+            if ($size !== false) {
+                return ['width' => $size[0], 'height' => $size[1]];
+            }
         }
 
-        $size = getimagesizefromstring($disk->get($path));
-
-        if ($size === false) {
-            return ['width' => 400, 'height' => 400];
-        }
-
-        return ['width' => $size[0], 'height' => $size[1]];
+        return ['width' => 400, 'height' => 400];
     }
 }
