@@ -36,28 +36,75 @@ class DatabaseSeeder extends Seeder
         }
 
         $categories = [
-            'Necklaces',
-            'Earrings',
-            'Rings',
-            'Bangles & Bracelets',
-            'Bridal Jewellery',
-            'Mangalsutra',
-            'Nose Pins',
-            'Anklets & Payal',
-            'Hair Accessories',
-            'Silver Jewellery',
-            'Gold Jewellery',
-            'Artificial Jewellery',
+            [
+                'name' => 'Necklaces',
+                'image' => 'images/royal-shine-gold-diamond-necklace-chandelier-earring-set-original.png',
+                'is_featured' => true,
+            ],
+            [
+                'name' => 'Earrings',
+                'image' => 'images/royal-shine-earrings-collection-hero.webp',
+                'is_featured' => true,
+            ],
+            [
+                'name' => 'Rings',
+                'image' => 'images/royal-shine-gold-solitaire-silver-floral-stud-earrings-original.png',
+                'is_featured' => true,
+            ],
+            [
+                'name' => 'Bangles & Bracelets',
+                'image' => 'images/royal-shine-gold-silver-hoop-earrings-set-original.png',
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Bridal Jewellery',
+                'image' => 'images/royal-shine-antique-gold-rani-haar-ruby-emerald-original.png',
+                'is_featured' => true,
+            ],
+            [
+                'name' => 'Mangalsutra',
+                'image' => 'images/royal-shine-gold-teardrop-diamond-pendant-necklace-original.png.png',
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Nose Pins',
+                'image' => 'images/royal-shine-kids-star-heart-butterfly-stud-earrings-original.png',
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Anklets & Payal',
+                'image' => 'images/royal-shine-white-gold-diamond-stud-earrings-original.png.png',
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Hair Accessories',
+                'image' => 'images/royal-shine-bahubali-temple-gold-silver-jhumka-original.png',
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Silver Jewellery',
+                'image' => 'images/royal-shine-gold-silver-chandbali-lotus-pearl-earrings-original.png',
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Gold Jewellery',
+                'image' => 'images/royal-shine-gold-kundan-silver-filigree-maang-tikka-collection-original.png',
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'Artificial Jewellery',
+                'image' => 'images/royal-shine-gold-silver-ear-cuff-collection-original.png',
+                'is_featured' => false,
+            ],
         ];
 
-        foreach ($categories as $index => $name) {
+        foreach ($categories as $index => $category) {
             Category::firstOrCreate(
-                ['slug' => str($name)->slug()],
+                ['slug' => str($category['name'])->slug()],
                 [
-                    'name' => $name,
-                    'description' => null,
-                    'image' => null,
-                    'is_featured' => false,
+                    'name' => $category['name'],
+                    'image' => $category['image'],
+                    'is_featured' => $category['is_featured'],
                     'status' => 'active',
                     'seo_title' => null,
                     'seo_description' => null,
