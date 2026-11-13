@@ -23,8 +23,10 @@
 
                 <!-- Jewellery Mega Menu (Dark Theme, Multi-Column) -->
                 <div class="relative group">
-                    <a href="{{ route('jewellery.index') }}" class="text-[#1a1a1a] font-medium hover:text-[#d4a373]">Jewellery</a>
-                    <div class="absolute left-0 mt-2 w-[560px] bg-[#0f0f0f] border border-[#2a2a2a] shadow-2xl hidden group-hover:block py-6 z-50">
+                    <div class="flex items-center">
+                        <a href="{{ route('jewellery.index') }}" class="text-[#1a1a1a] font-medium hover:text-[#d4a373]">Jewellery</a>
+                    </div>
+                    <div class="absolute left-0 mt-[-6px] w-[560px] bg-[#0f0f0f] border border-[#2a2a2a] shadow-2xl hidden group-hover:block py-6 z-50">
                         <div class="px-6">
                             <div class="grid grid-cols-2 gap-8">
                                 <!-- Left Column -->
@@ -33,7 +35,13 @@
                                     <nav class="space-y-2">
                                         @foreach ($navCategories->chunk(6)->first() as $category)
                                             <a href="{{ route('category.show', $category->slug) }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-[#e5e5e5] hover:bg-[#1a1a1a] hover:text-[#d4a373] transition-colors rounded-md">
-                                                <svg class="w-4 h-4 text-[#d4a373]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"></path></svg>
+                                                <div class="w-6 h-6 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                    @if ($category->image)
+                                                        <img src="{{ app(\App\Services\ImageService::class)->url($category->image) }}" alt="{{ $category->name }}" class="w-full h-full object-cover">
+                                                    @else
+                                                        <span class="text-[#d4a373] text-xs font-bold">{{ str($category->name)->substr(0, 1)->upper() }}</span>
+                                                    @endif
+                                                </div>
                                                 {{ $category->name }}
                                             </a>
                                         @endforeach
@@ -46,7 +54,13 @@
                                     <nav class="space-y-2">
                                         @foreach ($navCategories->chunk(6)->last() as $category)
                                             <a href="{{ route('category.show', $category->slug) }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-[#e5e5e5] hover:bg-[#1a1a1a] hover:text-[#d4a373] transition-colors rounded-md">
-                                                <svg class="w-4 h-4 text-[#d4a373]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"></path></svg>
+                                                <div class="w-6 h-6 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                    @if ($category->image)
+                                                        <img src="{{ app(\App\Services\ImageService::class)->url($category->image) }}" alt="{{ $category->name }}" class="w-full h-full object-cover">
+                                                    @else
+                                                        <span class="text-[#d4a373] text-xs font-bold">{{ str($category->name)->substr(0, 1)->upper() }}</span>
+                                                    @endif
+                                                </div>
                                                 {{ $category->name }}
                                             </a>
                                         @endforeach
