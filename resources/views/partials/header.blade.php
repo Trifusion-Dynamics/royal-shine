@@ -21,15 +21,53 @@
                 <x-button type="button" href="{{ route('home') }}" text="Home" class="text-[#1a1a1a] font-medium hover:text-[#d4a373] p-0 bg-transparent border-none hover:bg-transparent" />
                 <x-button type="button" href="{{ route('about') }}" text="About Us" class="text-[#1a1a1a] font-medium hover:text-[#d4a373] p-0 bg-transparent border-none hover:bg-transparent" />
 
-                <!-- Jewellery Dropdown (Mega Menu) -->
+                <!-- Jewellery Mega Menu (Dark Theme, Multi-Column) -->
                 <div class="relative group">
                     <a href="{{ route('jewellery.index') }}" class="text-[#1a1a1a] font-medium hover:text-[#d4a373]">Jewellery</a>
-                    <div class="absolute left-0 mt-2 w-64 bg-white border border-[#e5e5e5] shadow-xl hidden group-hover:block py-3 z-50">
-                        <div class="px-4 pb-3">
-                            <h3 class="text-xs font-semibold text-[#666] uppercase tracking-wider mb-3">Categories</h3>
-                            @foreach ($navCategories as $category)
-                                <a href="{{ route('category.show', $category->slug) }}" class="block px-4 py-2.5 text-sm text-[#1a1a1a] hover:bg-[#fdfaf5] hover:text-[#d4a373] transition-colors">{{ $category->name }}</a>
-                            @endforeach
+                    <div class="absolute left-0 mt-2 w-[560px] bg-[#0f0f0f] border border-[#2a2a2a] shadow-2xl hidden group-hover:block py-6 z-50">
+                        <div class="px-6">
+                            <div class="grid grid-cols-2 gap-8">
+                                <!-- Left Column -->
+                                <div>
+                                    <h3 class="text-xs font-semibold text-[#d4a373] uppercase tracking-wider mb-4">Categories</h3>
+                                    <nav class="space-y-2">
+                                        @foreach ($navCategories->chunk(6)->first() as $category)
+                                            <a href="{{ route('category.show', $category->slug) }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-[#e5e5e5] hover:bg-[#1a1a1a] hover:text-[#d4a373] transition-colors rounded-md">
+                                                <svg class="w-4 h-4 text-[#d4a373]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"></path></svg>
+                                                {{ $category->name }}
+                                            </a>
+                                        @endforeach
+                                    </nav>
+                                </div>
+
+                                <!-- Right Column -->
+                                <div>
+                                    <h3 class="text-xs font-semibold text-[#d4a373] uppercase tracking-wider mb-4">Shop by</h3>
+                                    <nav class="space-y-2">
+                                        @foreach ($navCategories->chunk(6)->last() as $category)
+                                            <a href="{{ route('category.show', $category->slug) }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-[#e5e5e5] hover:bg-[#1a1a1a] hover:text-[#d4a373] transition-colors rounded-md">
+                                                <svg class="w-4 h-4 text-[#d4a373]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"></path></svg>
+                                                {{ $category->name }}
+                                            </a>
+                                        @endforeach
+                                    </nav>
+                                </div>
+                            </div>
+
+                            <!-- Bottom CTA -->
+                            <div class="mt-6 pt-6 border-t border-[#2a2a2a] flex gap-3">
+                                <a href="{{ route('jewellery.index') }}" class="flex-1 px-4 py-2.5 bg-[#d4a373] text-[#1a1a1a] text-sm font-semibold text-center hover:bg-[#b08548] transition-colors rounded-md">
+                                    View All Jewellery
+                                </a>
+                                @php
+                                    $whatsapp = app(\App\Services\SettingsService::class)->get('whatsapp_number');
+                                @endphp
+                                @if ($whatsapp)
+                                    <a href="https://wa.me/{{ $whatsapp }}?text={{ urlencode('Hi Royal Shine, I would like to enquire about your jewellery collection.') }}" target="_blank" rel="noopener" class="flex-1 px-4 py-2.5 border border-[#d4a373] text-[#d4a373] text-sm font-semibold text-center hover:bg-[#d4a373] hover:text-[#1a1a1a] transition-colors rounded-md">
+                                        WhatsApp Enquiry
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -103,11 +141,16 @@
             <a href="{{ route('home') }}" @click="open = false" class="block px-3 py-2 rounded-md text-base font-medium text-[#1a1a1a] hover:bg-[#fdfaf5] hover:text-[#d4a373]">Home</a>
             <a href="{{ route('about') }}" @click="open = false" class="block px-3 py-2 rounded-md text-base font-medium text-[#1a1a1a] hover:bg-[#fdfaf5] hover:text-[#d4a373]">About Us</a>
 
-            <div class="border-t border-[#e5e5e5] pt-2">
-                <h3 class="px-3 py-2 text-base font-medium text-[#1a1a1a]">Jewellery</h3>
-                @foreach ($navCategories as $category)
-                    <a href="{{ route('category.show', $category->slug) }}" @click="open = false" class="block px-3 py-2 text-base text-[#1a1a1a] hover:bg-[#fdfaf5] hover:text-[#d4a373]">{{ $category->name }}</a>
-                @endforeach
+            <div class="border-t border-[#2a2a2a] pt-2">
+                <h3 class="px-3 py-2 text-base font-medium text-[#d4a373] uppercase tracking-wider">Jewellery</h3>
+                <nav class="space-y-1">
+                    @foreach ($navCategories as $category)
+                        <a href="{{ route('category.show', $category->slug) }}" @click="open = false" class="flex items-center gap-3 px-3 py-2.5 text-sm text-[#e5e5e5] hover:bg-[#1a1a1a] hover:text-[#d4a373] transition-colors rounded-md">
+                            <svg class="w-4 h-4 text-[#d4a373]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"></path></svg>
+                            {{ $category->name }}
+                        </a>
+                    @endforeach
+                </nav>
             </div>
 
             <a href="{{ route('gallery') }}" @click="open = false" class="block px-3 py-2 rounded-md text-base font-medium text-[#1a1a1a] hover:bg-[#fdfaf5] hover:text-[#d4a373]">Gallery</a>
