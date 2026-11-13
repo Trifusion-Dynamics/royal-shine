@@ -37,6 +37,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 return redirect()->back()->withErrors(['csrf' => 'CSRF token mismatch. Please try again.'])->withInput();
             }
 
+            if ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                return redirect()->guest(route('filament.admin.auth.login'));
+            }
+
             return response()->view('errors.500', [], 500);
         });
     })->create();
