@@ -3,21 +3,17 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\EnquiryRequest;
 use App\Models\Enquiry;
 use App\Models\Product;
-use App\Models\User;
 use App\Services\SettingsService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
 use App\Mail\EnquiryReceived;
-use Filament\Notifications\Notification as FilamentNotification;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Illuminate\Support\Facades\Mail;
 
 class EnquiryController extends Controller
 {
-    public function create(Request $request, SettingsService $settings)
+    public function create(\Illuminate\Http\Request $request, SettingsService $settings)
     {
         $product = null;
         if ($request->filled('product')) {
@@ -27,17 +23,7 @@ class EnquiryController extends Controller
         return view('pages.enquiry', compact('product', 'settings'));
     }
 
-    public function store(Request $request, SettingsService $settings)
-    {
-        return $this->save($request, $settings, 'product');
-    }
-
-    public function contact(Request $request, SettingsService $settings)
-    {
-        return $this->save($request, $settings, 'contact');
-    }
-
-    private function save(Request $request, SettingsService $settings, string $type)
+    public function store(EnquiryRequest $request, SettingsService $settings)
     {
         // Honeypot spam protection: real users never fill this hidden field.
         if ($request->filled('website')) {
@@ -45,21 +31,12 @@ class EnquiryController extends Controller
                 ->with('success', 'Your enquiry has been submitted. We will contact you soon.');
         }
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'mobile' => ['required', 'string', 'max:20'],
-            'email' => [$type === 'contact' ? 'required' : 'nullable', 'email', 'max:255'],
-            'subject' => [$type === 'contact' ? 'required' : 'nullable', 'string', 'max:255'],
-            'product_id' => ['nullable', Rule::exists('products', 'id')->where('status', 'published')],
-            'product_reference' => ['nullable', 'string', 'max:255'],
-            'message' => ['required', 'string', 'max:5000'],
-        ]);
+        $validated = $request->validated();
 
         // Basic duplicate protection: ignore identical submissions from the
         // same mobile number within the last 2 minutes.
-        $duplicate = Enquiry::where('mobile', $request->get('mobile'))
-            ->where('message', $request->get('message'))
-            ->where('enquiry_type', $type)
+        $duplicate = Enquiry::where('mobile', $validated['mobile'])
+            ->where('message', $validated['message'])
             ->where('created_at', '>=', now()->subMinutes(2))
             ->exists();
 
@@ -68,45 +45,100 @@ class EnquiryController extends Controller
                 ->with('success', 'Your enquiry has been submitted. We will contact you soon.');
         }
 
-        $product = isset($validated['product_id']) ? Product::find($validated['product_id']) : null;
+        $product = null;
+        if (! empty($validated['product_id'])) {
+            $product = Product::where('status', 'published')->find($validated['product_id']);
+        }
+
         $enquiry = Enquiry::create([
-            'product_id' => $type === 'product' ? $product?->id : null,
+            'product_id' => $product?->id,
             'name' => $validated['name'],
             'mobile' => $validated['mobile'],
             'email' => $validated['email'] ?? null,
-            'subject' => $validated['subject'] ?? null,
-            'enquiry_type' => $type,
-            'product_reference' => $type === 'product' ? ($product?->sku ?? ($validated['product_reference'] ?? null)) : null,
+            'product_reference' => $validated['product_reference'] ?? ($product?->sku ?? null),
             'message' => $validated['message'],
             'status' => 'new',
         ]);
 
-        $admins = User::where('is_admin', true)->get();
-        if ($admins->isNotEmpty()) {
-            FilamentNotification::make()
-                ->title($type === 'contact' ? 'New contact message' : 'New product enquiry')
-                ->body('A customer message is ready for review.')
-                ->icon('heroicon-o-chat-bubble-left-ellipsis')
-                ->sendToDatabase($admins);
-        }
-
-        try {
+        // Email notification: optional and controlled by admin setting.
+        if ($settings->get('email_notifications_enabled', false)) {
             $adminEmail = $settings->get('email');
             if ($adminEmail) {
-                Mail::to($adminEmail)->send(new EnquiryReceived($enquiry));
+                try {
+                    Mail::to($adminEmail)->send(new EnquiryReceived($enquiry));
+                } catch (\Throwable $e) {
+                    Log::error('Enquiry notification could not be sent.', [
+                        'enquiry_id' => $enquiry->id,
+                        'exception' => get_class($e),
+                        'message' => $e->getMessage(),
+                    ]);
+                }
             }
-        } catch (TransportExceptionInterface $exception) {
-            Log::error('Enquiry notification could not be sent.', [
-                'enquiry_id' => $enquiry->id,
-                'exception' => $exception::class,
-            ]);
         }
 
         return redirect()->route('enquiry.success')
-            ->with('success', 'Your enquiry has been submitted. We will contact you soon.');
+            ->with('success', 'Your enquiry has been submitted successfully. We will contact you soon.');
+    }
+
+    public function contact(\Illuminate\Http\Request $request, SettingsService $settings)
+    {
+        return view('pages.contact-enquiry', compact('settings'));
+    }
+
+    public function contactStore(EnquiryRequest $request, SettingsService $settings)
+    {
+        if ($request->filled('website')) {
+            return redirect()->route('contact.success')
+                ->with('success', 'Your message has been submitted. We will contact you soon.');
+        }
+
+        $validated = $request->validated();
+
+        $duplicate = Enquiry::where('mobile', $validated['mobile'])
+            ->where('message', $validated['message'])
+            ->where('created_at', '>=', now()->subMinutes(2))
+            ->exists();
+
+        if ($duplicate) {
+            return redirect()->route('contact.success')
+                ->with('success', 'Your message has been submitted. We will contact you soon.');
+        }
+
+        $enquiry = Enquiry::create([
+            'product_id' => null,
+            'name' => $validated['name'],
+            'mobile' => $validated['mobile'],
+            'email' => $validated['email'] ?? null,
+            'product_reference' => null,
+            'message' => $validated['message'],
+            'status' => 'new',
+        ]);
+
+        if ($settings->get('email_notifications_enabled', false)) {
+            $adminEmail = $settings->get('email');
+            if ($adminEmail) {
+                try {
+                    Mail::to($adminEmail)->send(new EnquiryReceived($enquiry));
+                } catch (\Throwable $e) {
+                    Log::error('Contact notification could not be sent.', [
+                        'enquiry_id' => $enquiry->id,
+                        'exception' => get_class($e),
+                        'message' => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->route('contact.success')
+            ->with('success', 'Your message has been submitted successfully. We will contact you soon.');
     }
 
     public function success(SettingsService $settings)
+    {
+        return view('pages.enquiry-success', compact('settings'));
+    }
+
+    public function contactSuccess(SettingsService $settings)
     {
         return view('pages.enquiry-success', compact('settings'));
     }

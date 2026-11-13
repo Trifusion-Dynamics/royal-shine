@@ -16,7 +16,7 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('/about-us', [PageController::class, 'about'])->name('about');
 Route::get('/gallery', [PageController::class, 'gallery'])->name('gallery');
 Route::get('/contact-us', [PageController::class, 'contact'])->name('contact');
-Route::post('/contact-us', [EnquiryController::class, 'contact'])->middleware('throttle:10,1')->name('contact.store');
+Route::post('/contact-us', [EnquiryController::class, 'contactStore'])->middleware('throttle.enquiry')->name('contact.store');
 Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('privacy');
 Route::get('/terms-and-conditions', [PageController::class, 'terms'])->name('terms');
 
@@ -32,7 +32,8 @@ Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/collections/{slug}', [CollectionsController::class, 'show'])->name('collection.show');
 
 Route::get('/enquiry/create', [EnquiryController::class, 'create'])->name('enquiry.create');
-Route::post('/enquiry', [EnquiryController::class, 'store'])->middleware('throttle:10,1')->name('enquiry.store');
+Route::post('/enquiry', [EnquiryController::class, 'store'])->middleware('throttle.enquiry')->name('enquiry.store');
+
 Route::get('/enquiry/success', [EnquiryController::class, 'success'])->name('enquiry.success');
 
 Route::get('/collections', CollectionsController::class)->name('collections');

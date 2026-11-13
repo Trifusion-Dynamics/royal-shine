@@ -52,7 +52,7 @@
                     $whatsapp = app(\App\Services\SettingsService::class)->get('whatsapp_number');
                 @endphp
                 @if ($whatsapp)
-                    <a href="https://wa.me/{{ $whatsapp }}" target="_blank" rel="noopener" class="flex items-center gap-2 px-4 py-2.5 bg-[#d4a373] text-white text-sm font-medium hover:bg-[#b08548] transition-colors whitespace-nowrap" title="WhatsApp">
+                    <a href="https://wa.me/{{ $whatsapp }}?text={{ urlencode('Hi Royal Shine, I would like to enquire about your jewellery collection.') }}" target="_blank" rel="noopener" class="flex items-center gap-2 px-4 py-2.5 bg-[#d4a373] text-white text-sm font-medium hover:bg-[#b08548] transition-colors whitespace-nowrap" title="WhatsApp">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         WhatsApp
                     </a>
@@ -66,7 +66,7 @@
             <div class="md:hidden flex items-center gap-2">
                 <!-- Mobile WhatsApp Shortcut -->
                 @if ($whatsapp)
-                    <a href="https://wa.me/{{ $whatsapp }}" target="_blank" rel="noopener" class="text-[#1a1a1a] hover:text-[#d4a373] p-2" title="WhatsApp">
+                    <a href="https://wa.me/{{ $whatsapp }}?text={{ urlencode('Hi Royal Shine, I would like to enquire about your jewellery collection.') }}" target="_blank" rel="noopener" class="text-[#1a1a1a] hover:text-[#d4a373] p-2" title="WhatsApp">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </a>
                 @endif
@@ -116,7 +116,7 @@
             <div class="border-t border-[#e5e5e5] pt-4 pb-2">
                 <h3 class="px-3 py-2 text-base font-medium text-[#1a1a1a]">Quick Actions</h3>
                 @if ($whatsapp)
-                    <a href="https://wa.me/{{ $whatsapp }}" target="_blank" rel="noopener" @click="open = false" class="block px-3 py-3 rounded-md text-base font-medium text-[#1a1a1a] bg-[#fdfaf5] border border-[#e5e5e5] hover:bg-[#d4a373] hover:text-white transition-colors flex items-center gap-3">
+                    <a href="https://wa.me/{{ $whatsapp }}?text={{ urlencode('Hi Royal Shine, I would like to enquire about your jewellery collection.') }}" target="_blank" rel="noopener" @click="close()" class="block px-3 py-3 rounded-md text-base font-medium text-[#1a1a1a] bg-[#fdfaf5] border border-[#e5e5e5] hover:bg-[#d4a373] hover:text-white transition-colors flex items-center gap-3">
                         <svg class="w-5 h-5 text-[#d4a373]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         WhatsApp Us
                     </a>

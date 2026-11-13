@@ -105,6 +105,10 @@ class Settings extends Page implements HasForms
                         Forms\Components\TextInput::make('business_hours')
                             ->label('Business Hours')
                             ->maxLength(255),
+                        Forms\Components\Toggle::make('email_notifications_enabled')
+                            ->label('Enable Email Notifications')
+                            ->required()
+                            ->default(false),
                     ])
                     ->columns(3),
 
@@ -190,6 +194,7 @@ class Settings extends Page implements HasForms
             'announcement_enabled' => Setting::get('announcement_enabled', false),
             'announcement_text' => Setting::get('announcement_text'),
             'announcement_link' => Setting::get('announcement_link'),
+            'email_notifications_enabled' => Setting::get('email_notifications_enabled', false),
         ]);
     }
 
