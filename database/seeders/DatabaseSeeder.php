@@ -128,6 +128,9 @@ class DatabaseSeeder extends Seeder
         $necklaceCategory = Category::where('slug', 'necklaces')->first();
         $earringsCategory = Category::where('slug', 'earrings')->first();
         $ringsCategory = Category::where('slug', 'rings')->first();
+        $banglesCategory = Category::where('slug', 'bangles-bracelets')->first();
+        $mangalsutraCategory = Category::where('slug', 'mangalsutra')->first();
+        $nosePinsCategory = Category::where('slug', 'nose-pins')->first();
 
         $sampleProducts = [
             [
@@ -186,13 +189,88 @@ class DatabaseSeeder extends Seeder
                 'seo_title' => '22K Gold Ruby Ring - Royal Shine',
                 'seo_description' => '22K gold ring with natural ruby at Royal Shine Jewellery.',
             ],
+            [
+                'name' => 'Gold Bangles Set',
+                'slug' => 'gold-bangles-set',
+                'sku' => 'RB-001',
+                'category_id' => $banglesCategory?->id,
+                'metal_type' => 'gold',
+                'gold_purity' => '22K',
+                'weight' => 25.0,
+                'weight_unit' => 'g',
+                'price' => 85000.00,
+                'price_on_request' => false,
+                'status' => 'published',
+                'is_featured' => true,
+                'short_description' => 'Traditional 22K gold bangles set',
+                'description' => 'Classic 22K gold bangles with intricate design, perfect for weddings and festivals.',
+                'stone_details' => 'No stones',
+                'seo_title' => '22K Gold Bangles Set - Royal Shine',
+                'seo_description' => 'Buy 22K gold bangles set online at Royal Shine.',
+            ],
+            [
+                'name' => 'Mangalsutra with Black Beads',
+                'slug' => 'mangalsutra-black-beads',
+                'sku' => 'RM-001',
+                'category_id' => $mangalsutraCategory?->id,
+                'metal_type' => 'gold',
+                'gold_purity' => '18K',
+                'weight' => 10.0,
+                'weight_unit' => 'g',
+                'price' => 55000.00,
+                'price_on_request' => false,
+                'status' => 'published',
+                'is_featured' => true,
+                'short_description' => 'Traditional 18K gold mangalsutra with black beads',
+                'description' => 'Elegant 18K gold mangalsutra with black beads and gold pendant, designed for married women.',
+                'stone_details' => 'Black beads and gold pendant',
+                'seo_title' => '18K Gold Mangalsutra - Royal Shine',
+                'seo_description' => 'Shop 18K gold mangalsutra online at Royal Shine.',
+            ],
+            [
+                'name' => 'Gold Nose Pin',
+                'slug' => 'gold-nose-pin',
+                'sku' => 'RN-002',
+                'category_id' => $nosePinsCategory?->id,
+                'metal_type' => 'gold',
+                'gold_purity' => '22K',
+                'weight' => 2.5,
+                'weight_unit' => 'g',
+                'price' => 12000.00,
+                'price_on_request' => false,
+                'status' => 'published',
+                'is_featured' => false,
+                'short_description' => 'Delicate 22K gold nose pin',
+                'description' => 'Beautiful 22K gold nose pin with small stone, perfect for daily wear.',
+                'stone_details' => 'Small diamond stone',
+                'seo_title' => '22K Gold Nose Pin - Royal Shine',
+                'seo_description' => 'Buy 22K gold nose pin online at Royal Shine.',
+            ],
         ];
 
         foreach ($sampleProducts as $productData) {
-            Product::firstOrCreate(
+            $product = Product::firstOrCreate(
                 ['sku' => $productData['sku']],
                 $productData,
             );
+
+            // Add product images for each product
+            if (!$product->images()->exists()) {
+                $productImages = [
+                    'images/royal-shine-gold-diamond-necklace-chandelier-earring-set-original.png',
+                    'images/royal-shine-gold-teardrop-diamond-pendant-necklace-original.png.png',
+                    'images/royal-shine-gold-kundan-silver-filigree-maang-tikka-collection-original.png',
+                ];
+
+                foreach ($productImages as $index => $imagePath) {
+                    $product->images()->create([
+                        'image' => $imagePath,
+                        'alt_text' => $productData['name'] . ' Image ' . ($index + 1),
+                        'sort_order' => $index + 1,
+                        'is_primary' => $index === 0,
+                    ]);
+                }
+            }
         }
     }
 }
