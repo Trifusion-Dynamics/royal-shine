@@ -49,6 +49,7 @@
                             </button>
                         @endforeach
                     </div>
+                    <p class="mt-1 text-[10px] uppercase tracking-[.16em] text-[#9a8d7e]">Select a view · {{ $galleryCount }} images</p>
                 @endif
 
                 <!-- Lightbox -->

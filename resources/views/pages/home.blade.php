@@ -184,6 +184,12 @@
                         </a>
                     @endforeach
                 </div>
+
+                @if ($featuredCollections->count() > 6)
+                    <div class="mt-10 text-center">
+                        <a href="{{ route('collections') }}" class="btn btn-outline">View all collections <span aria-hidden="true" class="ml-2">→</span></a>
+                    </div>
+                @endif
             </div>
         </section>
     @endif
