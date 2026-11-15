@@ -77,6 +77,8 @@ class EnquiryResource extends AuthorizedResource
                     ->badge()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('product.name')
+                    ->label('Product')
+                    ->placeholder('General enquiry')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('subject')
                     ->searchable()
@@ -91,14 +93,24 @@ class EnquiryResource extends AuthorizedResource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\SelectColumn::make('status')
-                    ->options(array_column(EnquiryStatus::cases(), 'value', 'value'))
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => str($state instanceof EnquiryStatus ? $state->value : $state)->replace('_', ' ')->title())
+                    ->color(fn ($state) => match ($state instanceof EnquiryStatus ? $state->value : $state) {
+                        'new' => 'danger',
+                        'contacted' => 'info',
+                        'in_progress' => 'warning',
+                        'converted' => 'success',
+                        'closed' => 'gray',
+                        default => 'gray',
+                    })
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('follow_up_date')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
+                    ->since()
                     ->sortable(),
             ])
             ->filters([
@@ -137,6 +149,17 @@ class EnquiryResource extends AuthorizedResource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('mark_contacted')
+                        ->label('Mark as contacted')
+                        ->icon('heroicon-o-phone')
+                        ->action(fn ($records) => $records->each->update(['status' => EnquiryStatus::CONTACTED]))
+                        ->requiresConfirmation(),
+                    Tables\Actions\BulkAction::make('close_enquiries')
+                        ->label('Close enquiries')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->action(fn ($records) => $records->each->update(['status' => EnquiryStatus::CLOSED]))
+                        ->requiresConfirmation(),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
