@@ -52,6 +52,8 @@ class EnquiryController extends Controller
 
         $enquiry = Enquiry::create([
             'product_id' => $product?->id,
+            'enquiry_type' => $validated['enquiry_type'] ?? ($product ? 'product' : 'contact'),
+            'subject' => $validated['subject'] ?? ($product ? 'Enquiry for ' . $product->name : null),
             'name' => $validated['name'],
             'mobile' => $validated['mobile'],
             'email' => $validated['email'] ?? null,
