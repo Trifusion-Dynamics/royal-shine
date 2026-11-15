@@ -25,13 +25,19 @@ document.addEventListener('alpine:init', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.swiper').forEach((el) => {
+        const slideCount = el.querySelectorAll('.swiper-slide').length;
+        const canMove = slideCount > 1;
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const opts = {
-            loop: el.dataset.loop === 'true',
+            loop: canMove && el.dataset.loop === 'true',
             effect: el.dataset.effect || 'slide',
-            crossfade: true,
-            autoplay: el.dataset.autoplay === 'true'
-                ? { delay: 4000, disableOnInteraction: false }
+            fadeEffect: { crossFade: true },
+            autoplay: canMove && !reduceMotion && el.dataset.autoplay === 'true'
+                ? { delay: 4500, disableOnInteraction: false, pauseOnMouseEnter: true }
                 : false,
+            watchOverflow: true,
+            observer: true,
+            observeParents: true,
             pagination: el.querySelector('.swiper-pagination')
                 ? { el: el.querySelector('.swiper-pagination'), clickable: true }
                 : false,
@@ -47,14 +53,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Scroll-triggered reveal for .reveal elements
-    const observerOptions = { threshold: 0.12, rootMargin: '0px 0px -60px 0px' };
-    const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                revealObserver.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-    document.querySelectorAll('.reveal').forEach((el) => revealObserver.observe(el));
+    const revealElements = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        revealElements.forEach((el) => el.classList.add('visible'));
+    } else {
+        const observerOptions = { threshold: 0.12, rootMargin: '0px 0px -60px 0px' };
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        revealElements.forEach((el) => revealObserver.observe(el));
+    }
 });
