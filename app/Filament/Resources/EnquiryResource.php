@@ -90,18 +90,9 @@ class EnquiryResource extends AuthorizedResource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->formatStateUsing(fn ($state) => str($state instanceof EnquiryStatus ? $state->value : $state)->replace('_', ' ')->title())
-                    ->color(fn ($state) => match ($state instanceof EnquiryStatus ? $state->value : $state) {
-                        'new' => 'danger',
-                        'contacted' => 'info',
-                        'in_progress' => 'warning',
-                        'converted' => 'success',
-                        'closed' => 'gray',
-                        default => 'gray',
-                    })
-                    ->sortable(),
+                Tables\Columns\SelectColumn::make('status')
+                    ->options(array_column(EnquiryStatus::cases(), 'value', 'value'))
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('follow_up_date')
                     ->date()
                     ->sortable(),
@@ -142,7 +133,6 @@ class EnquiryResource extends AuthorizedResource
                     ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make(),
             ])
-            ->defaultSort('created_at', 'desc')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
