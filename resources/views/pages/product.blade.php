@@ -27,32 +27,39 @@
              @keydown.arrow-right.window="if (open && images.length > 1) currentIndex = (currentIndex + 1) % images.length"
              @keydown.arrow-left.window="if (open && images.length > 1) currentIndex = (currentIndex + images.length - 1) % images.length">
 
-            <section class="min-w-0 lg:sticky lg:top-28">
-                <div class="product-gallery-main relative overflow-hidden rounded-sm bg-[#f3ece2] border border-[#e9dfd1]">
-                    <button type="button" class="block w-full cursor-zoom-in" @click="open = true" aria-label="Open large product image">
+            <section class="min-w-0 lg:sticky lg:top-24">
+                <div class="product-gallery-main relative overflow-hidden border border-[#e9dfd1] bg-white">
+                    <button type="button" class="group block w-full cursor-zoom-in bg-[#f8f4ed]" @click="open = true" aria-label="Open large product image">
                         <img src="{{ $heroImage }}" x-bind:src="images[currentIndex] || '{{ $heroImage }}'"
-                             alt="{{ $product->name }}" class="w-full aspect-[4/5] md:aspect-[5/4] lg:aspect-[4/5] object-contain p-3 md:p-7"
+                             alt="{{ $product->name }}"
+                             class="mx-auto h-[min(72vh,680px)] min-h-[390px] w-full object-contain p-4 md:p-8 transition-transform duration-500 group-hover:scale-[1.025]"
                              fetchpriority="high" decoding="async">
                     </button>
-                    <span class="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] tracking-[.18em] uppercase text-[#795d38]">Royal Shine</span>
+                    <span class="pointer-events-none absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[.18em] text-[#795d38] shadow-sm">Royal Shine</span>
+                    <span class="pointer-events-none absolute bottom-4 right-4 rounded-full bg-[#29231e]/80 px-3 py-1.5 text-[11px] text-white">Click to zoom</span>
                     @if ($galleryCount > 1)
-                        <span class="absolute bottom-4 right-4 rounded-full bg-[#29231e]/75 px-3 py-1.5 text-xs text-white" x-text="(currentIndex + 1) + ' / ' + images.length"></span>
+                        <span class="pointer-events-none absolute bottom-4 left-4 rounded-full bg-[#29231e]/80 px-3 py-1.5 text-xs text-white" x-text="(currentIndex + 1) + ' / ' + images.length"></span>
+                        <button type="button" @click.stop="currentIndex = (currentIndex + images.length - 1) % images.length"
+                            class="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-2xl text-[#4a3825] shadow transition hover:bg-white" aria-label="Previous product image">&lsaquo;</button>
+                        <button type="button" @click.stop="currentIndex = (currentIndex + 1) % images.length"
+                            class="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-2xl text-[#4a3825] shadow transition hover:bg-white" aria-label="Next product image">&rsaquo;</button>
                     @endif
                 </div>
 
                 @if ($galleryCount > 1)
-                    <div class="mt-4 grid grid-cols-4 sm:grid-cols-5 gap-3" aria-label="Product image thumbnails">
+                    <div class="mt-4 flex gap-3 overflow-x-auto pb-2" aria-label="Choose product image">
                         @foreach ($galleryImages as $index => $image)
                             <button type="button" @click="currentIndex = {{ $index }}"
-                                class="overflow-hidden border bg-white transition"
+                                class="group w-[76px] shrink-0 overflow-hidden border bg-[#f8f4ed] p-1 transition sm:w-[92px]"
                                 :class="currentIndex === {{ $index }} ? 'border-[#a77b43] ring-1 ring-[#a77b43]' : 'border-[#e9dfd1] hover:border-[#c6a16c]'"
-                                aria-label="Show image {{ $index + 1 }}">
+                                aria-label="Show product image {{ $index + 1 }}" :aria-pressed="currentIndex === {{ $index }}">
                                 <img src="{{ $imageUrls[$index] ?? $imageService->url($image->image) }}"
-                                     alt="{{ $image->alt_text ?: $product->name }}"
-                                     class="w-full aspect-square object-contain p-1.5" loading="lazy" decoding="async">
+                                     alt="{{ $image->alt_text ?: $product->name . ' view ' . ($index + 1) }}"
+                                     class="aspect-square w-full object-contain p-1 transition group-hover:scale-105" loading="lazy" decoding="async">
                             </button>
                         @endforeach
                     </div>
+                    <p class="mt-1 text-[10px] uppercase tracking-[.16em] text-[#9a8d7e]">Select a view · {{ $galleryCount }} images</p>
                 @endif
 
                 <div x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-[100] bg-[#17130f]/95 p-4 md:p-8 flex items-center justify-center"
