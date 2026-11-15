@@ -15,7 +15,9 @@ php artisan route:clear
 php artisan view:clear
 
 php artisan migrate --force
-php artisan db:seed --class=AdminUserSeeder --force
+# Seed the demo catalogue (categories, sample products, gallery, settings and admin).
+# The seeder uses firstOrCreate, so restarts do not duplicate existing records.
+php artisan db:seed --force
 
 php artisan storage:link || true
 php artisan config:cache
