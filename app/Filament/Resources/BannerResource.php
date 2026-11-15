@@ -30,12 +30,12 @@ class BannerResource extends AuthorizedResource
                     ->required()
                     ->maxSize(config('royal_shine.upload_max_size_kb'))
                     ->disk(config('royal_shine.upload_disk'))
-                    ->directory('banners'),
+                    ->directory('images/banners'),
                 Forms\Components\FileUpload::make('mobile_image')
                     ->image()
                     ->maxSize(config('royal_shine.upload_max_size_kb'))
                     ->disk(config('royal_shine.upload_disk'))
-                    ->directory('banners'),
+                    ->directory('images/banners'),
                 Forms\Components\TextInput::make('alt_text')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('heading')

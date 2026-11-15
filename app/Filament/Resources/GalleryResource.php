@@ -30,7 +30,7 @@ class GalleryResource extends AuthorizedResource
                     ->required()
                     ->maxSize(config('royal_shine.upload_max_size_kb'))
                     ->disk(config('royal_shine.upload_disk'))
-                    ->directory('gallery'),
+                    ->directory('images/gallery'),
                 Forms\Components\TextInput::make('title')
                     ->maxLength(255),
                 Forms\Components\Textarea::make('description')

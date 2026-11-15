@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.swiper').forEach((el) => {
         const opts = {
             loop: el.dataset.loop === 'true',
+            effect: el.dataset.effect || 'slide',
+            crossfade: true,
             autoplay: el.dataset.autoplay === 'true'
                 ? { delay: 4000, disableOnInteraction: false }
                 : false,
@@ -40,11 +42,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 : false,
             slidesPerView: 1,
-            breakpoints: {
-                640: { slidesPerView: 2 },
-                1024: { slidesPerView: 3 },
-            },
         };
         new Swiper(el, opts);
     });
+
+    // Scroll-triggered reveal for .reveal elements
+    const observerOptions = { threshold: 0.12, rootMargin: '0px 0px -60px 0px' };
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    document.querySelectorAll('.reveal').forEach((el) => revealObserver.observe(el));
 });

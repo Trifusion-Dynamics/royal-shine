@@ -53,11 +53,25 @@ class ImageOptimizationService
 
     protected function processImage(ImageOptimization $record, string $originalPath): void
     {
-        $imageService = app(ImageService::class);
-        $url = $imageService->url($originalPath);
+        $disk = Storage::disk(config('royal_shine.upload_disk'));
 
-        // Convert URL to local path if possible
-        $localPath = $this->urlToLocalPath($url, $originalPath);
+        // Resolve original image from storage disk directly
+        if ($disk->exists($originalPath)) {
+            $localPath = $disk->path($originalPath);
+        } else {
+            // Fallback: check public folder
+            $publicPath = public_path($originalPath);
+            if (file_exists($publicPath)) {
+                $localPath = $publicPath;
+            } else {
+                // Fallback: check storage/app/public directly
+                $storagePath = storage_path('app/public/' . $originalPath);
+                if (!file_exists($storagePath)) {
+                    throw new \Exception("File not found: {$originalPath}");
+                }
+                $localPath = $storagePath;
+            }
+        }
 
         if (!file_exists($localPath)) {
             throw new \Exception("File not found: {$localPath}");
@@ -71,8 +85,6 @@ class ImageOptimizationService
 
         // Get original file size
         $record->original_size = (int) filesize($localPath);
-
-        $disk = Storage::disk(config('royal_shine.upload_disk'));
 
         // Generate WebP (original size)
         $webpPath = $this->generateVariant($localPath, 'webp', null, null);
@@ -119,7 +131,11 @@ class ImageOptimizationService
             $baseName .= '_' . $variantName . '_' . $config['width'] . 'x' . $config['height'];
         }
 
-        $baseName .= '_' . $format;
+        $ext = match ($format) {
+            'avif' => 'avif',
+            default => 'webp',
+        };
+        $baseName .= '_' . $format . '.' . $ext;
         $path = 'optimized/' . $baseName;
 
         // Ensure directory exists using PHP mkdir
@@ -146,13 +162,8 @@ class ImageOptimizationService
 
         $encoded = $image->encode($encoder);
 
-        // Save using EncodedImage::save() or cast to string
-        try {
-            $encoded->save(Storage::disk(config('royal_shine.upload_disk'))->path($path));
-        } catch (\Throwable $e) {
-            // Fallback: cast to string
-            Storage::disk(config('royal_shine.upload_disk'))->put($path, (string) $encoded);
-        }
+        // Save exactly one optimized file per variant
+        Storage::disk(config('royal_shine.upload_disk'))->put($path, (string) $encoded);
 
         return $path;
     }

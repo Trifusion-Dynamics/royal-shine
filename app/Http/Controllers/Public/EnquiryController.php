@@ -82,7 +82,7 @@ class EnquiryController extends Controller
 
     public function contact(\Illuminate\Http\Request $request, SettingsService $settings)
     {
-        return view('pages.contact-enquiry', compact('settings'));
+        return view('pages.contact', compact('settings'));
     }
 
     public function contactStore(EnquiryRequest $request, SettingsService $settings)

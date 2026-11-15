@@ -43,7 +43,7 @@ class CategoryResource extends AuthorizedResource
                     ->image()
                     ->maxSize(config('royal_shine.upload_max_size_kb'))
                     ->disk(config('royal_shine.upload_disk'))
-                    ->directory('categories'),
+                    ->directory(fn () => 'images/categories'),
                 Forms\Components\Toggle::make('is_featured')
                     ->required(),
                 Forms\Components\Select::make('status')

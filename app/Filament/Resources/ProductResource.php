@@ -117,7 +117,7 @@ class ProductResource extends AuthorizedResource
                                     ->image()
                                     ->maxSize(config('royal_shine.upload_max_size_kb'))
                                     ->disk(config('royal_shine.upload_disk'))
-                                    ->directory('products')
+                                    ->directory('images/products')
                                     ->required(),
                                 Forms\Components\TextInput::make('alt_text')
                                     ->maxLength(255),

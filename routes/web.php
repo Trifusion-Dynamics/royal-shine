@@ -16,6 +16,7 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('/about-us', [PageController::class, 'about'])->name('about');
 Route::get('/gallery', [PageController::class, 'gallery'])->name('gallery');
 Route::get('/contact-us', [PageController::class, 'contact'])->name('contact');
+Route::get('/contact/success', [EnquiryController::class, 'contactSuccess'])->name('contact.success');
 Route::post('/contact-us', [EnquiryController::class, 'contactStore'])->middleware('throttle.enquiry')->name('contact.store');
 Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('privacy');
 Route::get('/terms-and-conditions', [PageController::class, 'terms'])->name('terms');

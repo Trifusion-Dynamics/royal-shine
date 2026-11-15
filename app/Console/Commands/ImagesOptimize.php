@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 use App\Models\ImageOptimization;
 use App\Services\ImageOptimization\ImageOptimizationService;
 use App\Models\Product;
@@ -87,11 +88,12 @@ class ImagesOptimize extends Command
     protected function collectImagePaths(ImageService $imageService): array
     {
         $paths = [];
+        $disk = Storage::disk(config('royal_shine.upload_disk'));
 
         // Product images
         foreach (Product::with('images')->get() as $product) {
             foreach ($product->images as $image) {
-                if ($image->image) {
+                if ($image->image && ($disk->exists($image->image) || file_exists(public_path($image->image)) || file_exists(storage_path('app/public/' . $image->image)))) {
                     $paths[$image->image] = $image->image;
                 }
             }
@@ -99,35 +101,35 @@ class ImagesOptimize extends Command
 
         // Category images
         foreach (Category::whereNotNull('image')->get() as $category) {
-            if ($category->image) {
+            if ($category->image && ($disk->exists($category->image) || file_exists(public_path($category->image)) || file_exists(storage_path('app/public/' . $category->image)))) {
                 $paths[$category->image] = $category->image;
             }
         }
 
         // Banner images
         foreach (Banner::whereNotNull('image')->get() as $banner) {
-            if ($banner->image) {
+            if ($banner->image && ($disk->exists($banner->image) || file_exists(public_path($banner->image)) || file_exists(storage_path('app/public/' . $banner->image)))) {
                 $paths[$banner->image] = $banner->image;
             }
         }
 
         // Gallery images
         foreach (Gallery::whereNotNull('image')->get() as $gallery) {
-            if ($gallery->image) {
+            if ($gallery->image && ($disk->exists($gallery->image) || file_exists(public_path($gallery->image)) || file_exists(storage_path('app/public/' . $gallery->image)))) {
                 $paths[$gallery->image] = $gallery->image;
             }
         }
 
         // Settings images (logo, favicon)
         foreach (Setting::whereIn('key', ['logo', 'favicon'])->whereNotNull('value')->get() as $setting) {
-            if ($setting->value) {
+            if ($setting->value && ($disk->exists($setting->value) || file_exists(public_path($setting->value)) || file_exists(storage_path('app/public/' . $setting->value)))) {
                 $paths[$setting->value] = $setting->value;
             }
         }
 
         // Testimonial images
         foreach (Testimonial::whereNotNull('image')->get() as $testimonial) {
-            if ($testimonial->image) {
+            if ($testimonial->image && ($disk->exists($testimonial->image) || file_exists(public_path($testimonial->image)) || file_exists(storage_path('app/public/' . $testimonial->image)))) {
                 $paths[$testimonial->image] = $testimonial->image;
             }
         }
