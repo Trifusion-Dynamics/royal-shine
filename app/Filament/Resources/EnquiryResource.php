@@ -70,6 +70,7 @@ class EnquiryResource extends AuthorizedResource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('enquiry_type')
                     ->label('Type')
@@ -101,6 +102,7 @@ class EnquiryResource extends AuthorizedResource
                     ->sortable(),
             ])
             ->filters([
+                SelectFilter::make('enquiry_type')->label('Enquiry type')->options(['product' => 'Product enquiry', 'contact' => 'Contact message']),
                 SelectFilter::make('status')
                     ->options(array_column(EnquiryStatus::cases(), 'value', 'value')),
                 Filter::make('created_at')
