@@ -25,6 +25,7 @@ class ProductController extends Controller
             ->get();
         $galleryImages = $product->images->sortByDesc('is_primary')->values();
         $primaryImage = $galleryImages->first();
+        $galleryCount = $galleryImages->count();
         $imageUrls = $galleryImages
             ->map(fn ($image): string => $images->url($image->image))
             ->whenEmpty(fn ($urls) => $urls->push($images->url(null)))
@@ -58,6 +59,7 @@ class ProductController extends Controller
             'related',
             'primaryImage',
             'galleryImages',
+            'galleryCount',
             'imageUrls',
             'metaTitle',
             'metaDescription',
