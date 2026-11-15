@@ -147,6 +147,7 @@ class ProductResource extends AuthorizedResource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->modifyQueryUsing(fn(Builder $query) => $query->with('images'))
             ->columns([
                 Tables\Columns\ImageColumn::make('image')
@@ -231,6 +232,17 @@ class ProductResource extends AuthorizedResource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('publish')
+                        ->label('Publish selected')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->action(fn ($records) => $records->each->update(['status' => 'published']))
+                        ->requiresConfirmation(),
+                    Tables\Actions\BulkAction::make('draft')
+                        ->label('Move to drafts')
+                        ->icon('heroicon-o-pencil-square')
+                        ->action(fn ($records) => $records->each->update(['status' => 'draft']))
+                        ->requiresConfirmation(),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

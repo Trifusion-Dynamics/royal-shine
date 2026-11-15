@@ -20,6 +20,8 @@ class EnquiryRequest extends FormRequest
             'message' => ['required', 'string'],
             'product_id' => ['nullable', 'exists:products,id'],
             'product_reference' => ['nullable', 'string', 'max:255'],
+            'subject' => ['nullable', 'string', 'max:255'],
+            'enquiry_type' => ['nullable', 'in:product,contact'],
             'website' => ['sometimes', 'nullable'],
         ];
     }
