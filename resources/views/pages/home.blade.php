@@ -134,42 +134,52 @@
         </section>
     @endif
 
-    {{-- Featured Collections: consistent premium collection cards --}}
+    {{-- Featured Collections --}}
     @if ($featuredCollections->count() > 0)
-        <section class="featured-collections-section bg-[#f4ecdf] py-16 md:py-24">
+        <section class="py-24">
             <div class="container-luxury">
-                <div class="mx-auto mb-10 max-w-2xl text-center md:mb-14">
-                    <span class="mb-3 inline-flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[.24em] text-[#a77b43]">
-                        <span class="h-px w-7 bg-[#c6a16c]"></span> Signature edits <span class="h-px w-7 bg-[#c6a16c]"></span>
-                    </span>
-                    <h2 class="font-serif text-3xl leading-tight text-[#29231e] md:text-5xl">Featured Collections</h2>
-                    <p class="mx-auto mt-3 max-w-xl text-sm leading-6 text-[#776b5e] md:text-base">Explore thoughtfully curated collections, each with a style and story of its own.</p>
-                </div>
+                <x-section-heading
+                    eyebrow="Signature Edits"
+                    title="Featured Collections"
+                    subtitle="Handcrafted pieces, thoughtfully curated for every occasion." />
 
-                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
-                    @foreach ($featuredCollections->take(6) as $collection)
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+                    @foreach ($featuredCollections as $index => $collection)
+                        @php $first = $index === 0; @endphp
                         <a href="{{ route('collection.show', $collection->slug) }}"
-                           class="featured-collection-card group flex h-full min-w-0 flex-col overflow-hidden border border-[#e5d8c7] bg-[#fffdfa] shadow-[0_5px_22px_rgba(63,45,27,.045)] transition duration-300 hover:-translate-y-1 hover:border-[#c6a16c] hover:shadow-[0_18px_42px_rgba(63,45,27,.12)]">
-                            <div class="featured-collection-card__image relative aspect-[5/4] overflow-hidden bg-[#e9dfd1]">
-                                @if ($collection->image)
-                                    <x-image :path="$collection->image" :alt="$collection->name" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.045]" loading="lazy" />
-                                @else
-                                    <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#f1e8da] to-[#dfc9a8]">
-                                        <span class="font-serif text-5xl text-[#9a713e]">{{ str($collection->name)->substr(0, 2)->upper() }}</span>
-                                    </div>
-                                @endif
-                                <span class="absolute left-4 top-4 bg-[#fffdfa]/95 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[.18em] text-[#8c683b]">Royal Shine</span>
-                            </div>
-                            <div class="flex flex-1 items-center justify-between gap-4 px-5 py-5 md:px-6 md:py-6">
-                                <div class="min-w-0">
-                                    <h3 class="font-serif text-xl leading-snug text-[#29231e] transition-colors group-hover:text-[#9a713e] md:text-2xl">{{ $collection->name }}</h3>
-                                    @if ($collection->description)
-                                        <p class="mt-2 line-clamp-2 text-xs leading-5 text-[#81766a] md:text-sm">{{ $collection->description }}</p>
-                                    @else
-                                        <p class="mt-2 text-xs leading-5 text-[#81766a] md:text-sm">Discover the pieces in this collection.</p>
-                                    @endif
+                           class="group relative block overflow-hidden rounded-xl border border-beige bg-white aspect-[4/5] @if ($first) lg:col-span-2 @endif">
+                            @if ($collection->image)
+                                <x-image :path="$collection->image" :alt="$collection->name"
+                                         class="w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
+                                         loading="lazy" />
+                            @else
+                                <div class="w-full h-full lazy-placeholder flex items-center justify-center">
+                                    <span class="text-warm-gray text-sm font-medium uppercase tracking-[0.2em]">
+                                        {{ str($collection->name)->substr(0, 2)->upper() }}
+                                    </span>
                                 </div>
-                                <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#d9c5a8] text-lg text-[#9a713e] transition duration-300 group-hover:border-[#9a713e] group-hover:bg-[#9a713e] group-hover:text-white" aria-hidden="true">↗</span>
+                            @endif
+
+                            <div class="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/25 to-transparent"></div>
+
+                            <div class="absolute inset-x-0 bottom-0 p-6 md:p-8 z-10">
+                                <span class="inline-block mb-3 px-3 py-1 bg-gold text-white text-[10px] font-bold uppercase tracking-[0.18em] rounded-full">
+                                    Collection {{ $index + 1 }}
+                                </span>
+                                <h3 class="font-serif text-xl md:text-2xl text-white mb-2 leading-tight transition-colors group-hover:text-gold/95">
+                                    {{ $collection->name }}
+                                </h3>
+                                @if ($collection->description)
+                                    <p class="text-sm md:text-base text-white/80 leading-relaxed mb-4 line-clamp-2 max-w-lg">
+                                        {{ $collection->description }}
+                                    </p>
+                                @endif
+                                <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-gold uppercase tracking-[0.14em]">
+                                    Explore Collection
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                    </svg>
+                                </span>
                             </div>
                         </a>
                     @endforeach
@@ -214,15 +224,67 @@
 
     {{-- New Arrivals --}}
     @if ($newArrivals->count() > 0)
-        <section class="bg-[#fbf8f2] py-16 md:py-24">
+        <section class="py-24">
             <div class="container-luxury">
-                <x-section-heading eyebrow="Just arrived" title="New Arrivals" subtitle="Fresh additions to the Royal Shine collection." />
-                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                <x-section-heading
+                    eyebrow="Just In"
+                    title="New Arrivals"
+                    subtitle="The latest additions to our collection." />
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-8 md:gap-10">
                     @foreach ($newArrivals as $product)
-                        <x-product-card :product="$product" />
+                        @php
+                            $firstImage = $product->images->firstWhere('is_primary', true) ?? $product->images->first();
+                        @endphp
+                        <article class="card group">
+                            <div class="image-wrap aspect-square relative">
+                                @if ($firstImage)
+                                    <x-image :path="$firstImage->image"
+                                             :alt="$firstImage->alt_text ?: $product->name"
+                                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                             loading="lazy" />
+                                @else
+                                    <div class="w-full h-full lazy-placeholder flex items-center justify-center">
+                                        <span class="text-warm-gray text-xs font-medium uppercase tracking-[0.2em]">
+                                            {{ str($product->name)->substr(0, 1)->upper() }}
+                                        </span>
+                                    </div>
+                                @endif
+
+                                <span class="absolute top-3 left-3 z-10 inline-flex items-center px-2.5 py-1 bg-charcoal text-white text-[10px] font-semibold uppercase tracking-[0.16em] rounded-full shadow-sm">
+                                    New
+                                </span>
+                            </div>
+
+                            <div class="p-6">
+                                @if ($product->category)
+                                    <p class="text-[11px] font-semibold text-gold uppercase tracking-[0.16em] mb-1.5">
+                                        {{ $product->category->name }}
+                                    </p>
+                                @endif
+                                <h3 class="font-serif text-lg text-charcoal mb-3 leading-tight group-hover:text-gold transition-colors">
+                                    <a href="{{ route('product.show', $product->slug) }}">{{ $product->name }}</a>
+                                </h3>
+
+                                <div class="flex items-baseline gap-2 mb-6">
+                                    @if ($product->price_on_request || ! $product->price)
+                                        <span class="text-sm font-medium text-gold">Price on Request</span>
+                                    @else
+                                        <span class="text-xl font-semibold text-charcoal">₹{{ number_format($product->price, 0) }}</span>
+                                    @endif
+                                </div>
+
+                                <a href="{{ route('enquiry.create', ['product' => $product->id]) }}"
+                                   class="btn btn-text text-gold hover:text-brown text-sm inline-flex items-center gap-1.5">
+                                    Enquire
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </article>
                     @endforeach
                 </div>
-                <div class="mt-10 text-center"><a href="{{ route('jewellery.index') }}" class="btn btn-outline">Explore all jewellery</a></div>
             </div>
         </section>
     @endif
