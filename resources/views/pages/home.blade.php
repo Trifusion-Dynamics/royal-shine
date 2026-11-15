@@ -136,60 +136,52 @@
 
     {{-- Featured Collections --}}
     @if ($featuredCollections->count() > 0)
-        <section class="py-24">
+        <section class="featured-collections-section bg-[#f7f1e8] py-16 md:py-24">
             <div class="container-luxury">
-                <x-section-heading
-                    eyebrow="Signature Edits"
-                    title="Featured Collections"
-                    subtitle="Handcrafted pieces, thoughtfully curated for every occasion." />
+                <div class="mx-auto mb-10 max-w-2xl text-center md:mb-14">
+                    <p class="mb-3 text-[10px] font-semibold uppercase tracking-[.28em] text-[#a77b43]">The Royal Shine edit</p>
+                    <h2 class="font-serif text-3xl leading-tight text-[#29231e] md:text-5xl">Featured Collections</h2>
+                    <p class="mx-auto mt-4 max-w-lg text-sm leading-7 text-[#766b60] md:text-base">Handpicked jewellery collections for celebrations, everyday elegance and unforgettable moments.</p>
+                    <span class="mx-auto mt-6 block h-px w-14 bg-[#bd955e]"></span>
+                </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-                    @foreach ($featuredCollections as $index => $collection)
-                        @php $first = $index === 0; @endphp
+                <div class="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
+                    @foreach ($featuredCollections->take(6) as $collection)
                         <a href="{{ route('collection.show', $collection->slug) }}"
-                           class="group relative block overflow-hidden rounded-xl border border-beige bg-white aspect-[4/5] @if ($first) lg:col-span-2 @endif">
-                            @if ($collection->image)
-                                <x-image :path="$collection->image" :alt="$collection->name"
-                                         class="w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
-                                         loading="lazy" />
-                            @else
-                                <div class="w-full h-full lazy-placeholder flex items-center justify-center">
-                                    <span class="text-warm-gray text-sm font-medium uppercase tracking-[0.2em]">
-                                        {{ str($collection->name)->substr(0, 2)->upper() }}
-                                    </span>
-                                </div>
-                            @endif
-
-                            <div class="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/25 to-transparent"></div>
-
-                            <div class="absolute inset-x-0 bottom-0 p-6 md:p-8 z-10">
-                                <span class="inline-block mb-3 px-3 py-1 bg-gold text-white text-[10px] font-bold uppercase tracking-[0.18em] rounded-full">
-                                    Collection {{ $index + 1 }}
-                                </span>
-                                <h3 class="font-serif text-xl md:text-2xl text-white mb-2 leading-tight transition-colors group-hover:text-gold/95">
-                                    {{ $collection->name }}
-                                </h3>
-                                @if ($collection->description)
-                                    <p class="text-sm md:text-base text-white/80 leading-relaxed mb-4 line-clamp-2 max-w-lg">
-                                        {{ $collection->description }}
-                                    </p>
+                           class="group flex h-full min-w-0 flex-col overflow-hidden border border-[#e8ddcf] bg-white shadow-[0_4px_18px_rgba(50,35,20,.05)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_38px_rgba(50,35,20,.12)]">
+                            <div class="relative aspect-[4/3] w-full overflow-hidden bg-[#eee5d8]">
+                                @if ($collection->image)
+                                    <x-image :path="$collection->image" :alt="$collection->name"
+                                             class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                             loading="lazy" />
+                                @else
+                                    <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#f3eadc] to-[#e3d1b6]">
+                                        <span class="font-serif text-5xl text-[#a77b43]">{{ str($collection->name)->substr(0, 2)->upper() }}</span>
+                                    </div>
                                 @endif
-                                <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-gold uppercase tracking-[0.14em]">
-                                    Explore Collection
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                                    </svg>
-                                </span>
+                                <span class="absolute left-4 top-4 bg-white/95 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[.2em] text-[#8f6a3d]">Royal Shine</span>
+                            </div>
+
+                            <div class="flex flex-1 items-center justify-between gap-4 px-5 py-5 md:px-6">
+                                <div class="min-w-0">
+                                    <h3 class="font-serif text-xl text-[#29231e] transition-colors group-hover:text-[#9a713e] md:text-2xl">{{ $collection->name }}</h3>
+                                    @if ($collection->description)
+                                        <p class="mt-2 line-clamp-2 text-xs leading-5 text-[#81766a] md:text-sm">{{ $collection->description }}</p>
+                                    @else
+                                        <p class="mt-2 text-xs leading-5 text-[#81766a] md:text-sm">Discover the designs in this collection.</p>
+                                    @endif
+                                </div>
+                                <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#dfceb5] text-lg text-[#9a713e] transition-all group-hover:border-[#9a713e] group-hover:bg-[#9a713e] group-hover:text-white" aria-hidden="true">↗</span>
                             </div>
                         </a>
                     @endforeach
                 </div>
 
-                @if ($featuredCollections->count() > 6)
-                    <div class="mt-10 text-center">
-                        <a href="{{ route('collections') }}" class="btn btn-outline">View all collections <span aria-hidden="true" class="ml-2">→</span></a>
-                    </div>
-                @endif
+                <div class="mt-10 text-center">
+                    <a href="{{ route('collections') }}" class="inline-flex items-center gap-2 border border-[#a77b43] px-6 py-3 text-[10px] font-semibold uppercase tracking-[.18em] text-[#76542d] transition hover:bg-[#a77b43] hover:text-white">
+                        View all collections <span aria-hidden="true">→</span>
+                    </a>
+                </div>
             </div>
         </section>
     @endif
