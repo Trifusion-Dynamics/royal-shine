@@ -6,6 +6,12 @@
     $announcementEnabled = $settingsService->get('announcement_enabled', false);
     $announcementText = $settingsService->get('announcement_text');
     $announcementLink = $settingsService->get('announcement_link');
+
+    // The shared header must remain renderable before any categories are configured.
+    $navCategories = collect($navCategories ?? []);
+    $navCategoryGroups = $navCategories->chunk(6);
+    $primaryNavCategories = $navCategoryGroups->get(0, collect());
+    $secondaryNavCategories = $navCategoryGroups->get(1, collect());
 @endphp
 
 <!-- Announcement Bar -->
@@ -61,7 +67,7 @@
                             <div class="border-r border-beige p-6">
                                 <h4 class="text-xs font-semibold text-gold uppercase tracking-wider mb-5">Categories</h4>
                                 <nav class="space-y-3">
-                                    @foreach ($navCategories->chunk(6)->first() as $category)
+                                    @foreach ($primaryNavCategories as $category)
                                         <a href="{{ route('category.show', $category->slug) }}"
                                            class="flex items-center gap-3 px-3 py-2.5 text-sm text-warm-gray hover:bg-champagne hover:text-gold transition-colors rounded-md">
                                             @if ($category->image)
@@ -86,7 +92,7 @@
                             <div class="p-6">
                                 <h4 class="text-xs font-semibold text-gold uppercase tracking-wider mb-5">Shop by</h4>
                                 <nav class="space-y-3">
-                                    @foreach ($navCategories->chunk(6)->last() as $category)
+                                    @foreach ($secondaryNavCategories as $category)
                                         <a href="{{ route('category.show', $category->slug) }}"
                                            class="flex items-center gap-3 px-3 py-2.5 text-sm text-warm-gray hover:bg-champagne hover:text-gold transition-colors rounded-md">
                                             @if ($category->image)
