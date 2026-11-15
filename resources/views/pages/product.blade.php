@@ -1,7 +1,7 @@
 <x-layout :seoTitle="$metaTitle" :metaDescription="$metaDescription" :canonicalUrl="$canonicalUrl" :ogImage="$ogImage">
     @php
-        $settingsService = app(\\App\\Services\\SettingsService::class);
-        $imageService = app(\\App\\Services\\ImageService::class);
+        $settingsService = app(\App\Services\SettingsService::class);
+        $imageService = app(\App\Services\ImageService::class);
         $whatsapp = $settingsService->get('whatsapp_number');
         $catName = optional($product->category)->name;
         $heroImage = $primaryImage ? $imageService->url($primaryImage->image) : $imageService->url(null);
