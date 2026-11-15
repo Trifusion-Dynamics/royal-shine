@@ -34,16 +34,25 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path(env('ADMIN_PATH', 'admin'))
-            ->brandName('Royal Shine')
+            ->brandName('Royal Shine | Studio Admin')
+            ->brandLogoHeight('2.5rem')
             ->login()
             ->passwordReset()
             ->profile()
             ->databaseNotifications()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#a77b43'),
+                'gray' => Color::Slate,
             ])
             ->darkMode()
             ->sidebarCollapsibleOnDesktop()
+            ->navigationGroups([
+                'Overview',
+                'Catalogue',
+                'Customers & Enquiries',
+                'Website Content',
+                'Administration',
+            ])
             ->maxContentWidth('full')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
