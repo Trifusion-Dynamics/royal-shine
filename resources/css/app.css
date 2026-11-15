@@ -374,3 +374,21 @@
 @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1; transform: none; }
 }
+
+/* Royal Shine storefront refinement */
+@layer components {
+  .product-card { background: transparent; }
+  .product-card__image { aspect-ratio: 4 / 4.8; border: 1px solid rgba(154,113,62,.13); }
+  .product-card__image picture, .product-card__image picture img { display:block; width:100%; height:100%; }
+  .product-card__image picture img { object-fit:contain; }
+  .product-gallery-main img { display:block; min-height:320px; }
+  footer .container-luxury { padding-top:2.75rem; padding-bottom:1.25rem; }
+  footer .container-luxury > .grid { gap:1.75rem; margin-bottom:1.75rem; }
+  footer .container-luxury > .grid h4 { margin-bottom:1rem; }
+  footer .container-luxury > .grid ul { gap:.55rem; }
+  footer .container-luxury > .grid p { margin-bottom:1rem; }
+}
+@media (max-width:767px) {
+  .product-card__image { aspect-ratio: 1 / 1.08; }
+  footer .container-luxury { padding-top:2rem; }
+}
