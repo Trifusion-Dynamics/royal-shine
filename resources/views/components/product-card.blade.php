@@ -3,7 +3,7 @@
     $firstImage = $product->images->firstWhere('is_primary', true) ?? $product->images->first();
     $categoryName = optional($product->category)->name;
     $hasDiscount = $product->price && $product->compare_price && $product->compare_price > $product->price;
-    $imageService = app(\\App\\Services\\ImageService::class);
+    $imageService = app(\App\Services\ImageService::class);
 @endphp
 <article class="product-card group min-w-0">
     <a href="{{ $link ? route('product.show', $product->slug) : '#' }}" class="product-card__image relative block overflow-hidden bg-[#f3ece2]" @if(!$link) aria-disabled="true" @endif>
