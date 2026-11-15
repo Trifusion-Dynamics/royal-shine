@@ -12,24 +12,6 @@
         $aboutPage = \App\Models\Page::where('slug', 'about-us')->where('status', 'published')->first();
     @endphp
 
-    {{-- Announcement Bar --}}
-    @if ($announcementEnabled && $announcementText)
-        <div class="bg-charcoal text-champagne border-b border-gold/20">
-            <div class="container-luxury flex items-center justify-center gap-3 py-2.5 text-xs sm:text-sm font-medium tracking-wide">
-                @if ($announcementLink)
-                    <a href="{{ $announcementLink }}" class="hover:text-gold transition-colors inline-flex items-center gap-2">
-                        {{ $announcementText }}
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                        </svg>
-                    </a>
-                @else
-                    {{ $announcementText }}
-                @endif
-            </div>
-        </div>
-    @endif
-
     {{-- Hero Editorial Swiper --}}
     <section class="relative overflow-hidden bg-charcoal">
         @if ($banners->count() > 0)

@@ -1,11 +1,11 @@
 # Royal Shine — Implementation Status Report
 
 ## Project Overview
-Jewellery Catalogue Website + Admin Panel (Phase 1: No cart/payment)
+Jewellery Catalogue Website + Admin Panel (Phase 1: Enquiry-led catalogue; no cart/payment)
 - **Tech:** Laravel 11 + Filament 3.3 + PHP 8.2 + MySQL + Blade + Tailwind + Alpine.js
 - **Repo:** https://github.com/Trifusion-Dynamics/royal-shine.git
 - **Database:** `database/database.sqlite` (local), MySQL via `.env.example` (shared hosting)
-- **Admin Credentials:** admin@example.com / password123 (super_admin)
+- **Admin Access:** Bootstrap the first super-admin only through `ADMIN_EMAIL` and `ADMIN_PASSWORD` environment variables. Never publish or commit real credentials.
 
 ---
 
@@ -55,7 +55,7 @@ Jewellery Catalogue Website + Admin Panel (Phase 1: No cart/payment)
 |-------|-------|--------|
 | categories | 12 | ✅ Seeded |
 | users (admin) | 1 | ✅ Seeded |
-| admin@example.com / password123 | super_admin | ✅ |
+| Initial super-admin | Environment-configured bootstrap only | ✅ |
 | products | 0 | ⚠️ Add via admin panel |
 | collections | 0 | ⚠️ Add via admin panel |
 | banners | 0 | ⚠️ Add via admin panel |
@@ -122,7 +122,7 @@ All tested pages return HTTP 200 (or 404 for missing items):
 - `/admin/categories` ✅ (redirects to login when not authenticated)
 - `/admin/settings` ✅ (redirects to login when not authenticated)
 
-**Admin Login Credentials:** admin@example.com / password123 ✅ (verified working)
+**Admin Login:** Verify with the private, environment-configured administrator account. Do not use shared or example credentials.
 
 Vite assets built ✅ (`public/build/`)
 GitHub pushed ✅ (`main` branch, commit `5edde12`)

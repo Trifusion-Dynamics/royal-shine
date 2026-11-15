@@ -21,15 +21,17 @@
     <div class="container-luxury">
         <div class="grid lg:grid-cols-2 gap-12">
             <!-- Image Gallery -->
-            <div class="space-y-5">
-                <div class="relative aspect-square overflow-hidden rounded-lg border border-beige bg-champagne shadow-sm cursor-pointer group"
+            <div class="space-y-5"
+                 x-data="{ open: false, images: @js($imageUrls), currentIndex: 0 }"
+                 @keydown.escape.window="open = false"
+                 @keydown.arrow-right.window="if (open && images.length > 1) currentIndex = (currentIndex + 1) % images.length"
+                 @keydown.arrow-left.window="if (open && images.length > 1) currentIndex = (currentIndex + images.length - 1) % images.length">
+                <div class="relative aspect-square overflow-hidden rounded-lg border border-beige bg-champagne shadow-sm cursor-zoom-in group"
                      @click="open = true"
                      role="button" tabindex="0"
                      aria-label="Open product image gallery"
-                     x-data="{ open: false }"
-                     @keydown.escape.window="open = false"
-                     @keydown.arrow-right.window="if (open) currentIndex = (currentIndex + 1) % images.length"
-                     @keydown.arrow-left.window="if (open) currentIndex = (currentIndex + images.length - 1) % images.length">
+                     @keydown.enter.prevent="open = true"
+                     @keydown.space.prevent="open = true">
                     <img x-bind:src="images[currentIndex]" alt="{{ $product->name }}"
                          class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
                          loading="eager">
