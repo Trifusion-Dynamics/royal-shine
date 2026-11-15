@@ -1,32 +1,13 @@
 @props(['category', 'link' => true])
-
-<a href="{{ route('category.show', $category->slug) }}"
-   class="block group">
-    <div class="image-wrap aspect-[1] mb-3">
+<a href="{{ route('category.show', $category->slug) }}" class="category-tile group block text-center">
+    <div class="relative mb-4 overflow-hidden border border-[#e8ddcf] bg-[#f3ece2]">
         @if ($category->image)
-            <x-image
-                :path="$category->image"
-                :alt="$category->name"
-                class="w-full h-full object-cover group-hover:scale-105"
-                loading="lazy"
-            />
+            <x-image :path="$category->image" :alt="$category->name" class="block aspect-square w-full object-cover transition-transform duration-700 group-hover:scale-[1.045]" loading="lazy" />
         @else
-            <div class="w-full h-full lazy-placeholder flex items-center justify-center">
-                <span class="text-warm-gray text-xs font-medium uppercase tracking-wider">
-                    {{ str($category->name)->substr(0, 2)->upper() }}
-                </span>
-            </div>
+            <div class="flex aspect-square w-full items-center justify-center"><span class="font-serif text-2xl text-[#a58c6a]">{{ str($category->name)->substr(0, 2)->upper() }}</span></div>
         @endif
-        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-opacity duration-500"></div>
+        <span class="absolute inset-0 border-[5px] border-white/0 transition group-hover:border-white/40" aria-hidden="true"></span>
     </div>
-
-    <h3 class="font-serif text-lg text-charcoal leading-tight group-hover:text-gold transition-colors">
-        {{ $category->name }}
-    </h3>
-
-    @if ($category->description)
-        <p class="text-sm text-warm-gray mt-1.5 line-clamp-2 leading-relaxed">
-            {{ $category->description }}
-        </p>
-    @endif
+    <h3 class="font-serif text-lg leading-tight text-[#29231e] transition-colors group-hover:text-[#9a713e]">{{ $category->name }}</h3>
+    @if ($category->description)<p class="mt-1.5 text-xs leading-5 text-[#82776b] line-clamp-2">{{ $category->description }}</p>@endif
 </a>
