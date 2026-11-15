@@ -152,13 +152,13 @@ class EnquiryResource extends AuthorizedResource
                     Tables\Actions\BulkAction::make('mark_contacted')
                         ->label('Mark as contacted')
                         ->icon('heroicon-o-phone')
-                        ->action(fn ($records) => $records->each->update(['status' => EnquiryStatus::CONTACTED]))
+                        ->action(fn ($records) => $records->each->update(['status' => EnquiryStatus::Contacted]))
                         ->requiresConfirmation(),
                     Tables\Actions\BulkAction::make('close_enquiries')
                         ->label('Close enquiries')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
-                        ->action(fn ($records) => $records->each->update(['status' => EnquiryStatus::CLOSED]))
+                        ->action(fn ($records) => $records->each->update(['status' => EnquiryStatus::Closed]))
                         ->requiresConfirmation(),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
