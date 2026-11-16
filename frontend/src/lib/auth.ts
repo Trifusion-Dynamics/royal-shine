@@ -40,3 +40,6 @@ export function setStoredUser(user: object): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
+
+export const getCurrentUser = getStoredUser;
+export const setCurrentUser = setStoredUser;
