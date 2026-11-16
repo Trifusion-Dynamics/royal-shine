@@ -26,7 +26,7 @@ export class AuthService {
     try {
       valid = await argon2.verify(user.password, loginDto.password);
     } catch {
-      // Try bcrypt if argon2 fails (Laravel hashed passwords)
+      // Try bcrypt for previously imported password hashes
       try {
         valid = await bcrypt.compare(loginDto.password, user.password);
       } catch {
