@@ -1,5 +1,5 @@
 // Royal Shine - Prisma Schema for PostgreSQL (Neon)
-// Generated for NestJS backend migration from Laravel/SQLite
+// PostgreSQL schema for the Royal Shine catalogue and admin platform
 
 generator client {
   provider = "prisma-client-js"
