@@ -10,7 +10,7 @@ import * as path from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
-  app.set('trust proxy', 1);
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(compression());
   const uploadsPath = path.resolve(process.cwd(), 'uploads');
