@@ -1,96 +1,138 @@
-# Royal Shine
+# Royal Shine — Next.js + NestJS
 
-Royal Shine is a Laravel jewellery catalogue with a public storefront and a Filament administration panel. Customers can browse published products, search and filter the catalogue, and send product or general enquiries. It does not include cart, checkout, or payment processing.
+> Premium Jewellery Catalogue — migrated from Laravel/PHP to Next.js + NestJS + PostgreSQL
 
-## Features
+## Stack
 
-- Jewellery categories, collections, product galleries, banners, and content pages managed in the admin panel.
-- Public home, catalogue, category, product, collection, gallery, about, contact, policy, and testimonial pages.
-- Search and catalogue filters, sitemap, canonical metadata, and product structured data.
-- Product and contact enquiry forms with validation and spam controls.
-- Admin roles for super admins, admins, content managers, and enquiry managers.
-- Enquiry assignment, customer enquiry history, database notifications, and admin activity logs.
-- Dashboard statistics and charts.
+| Layer | Technology |
+|---|---|
+| **Frontend** | Next.js 15, React 19, TypeScript, Tailwind CSS |
+| **Backend** | NestJS, TypeScript, Prisma ORM |
+| **Database** | PostgreSQL (Neon serverless) |
+| **Media** | Cloudinary |
+| **Auth** | JWT (access + refresh tokens) |
 
-## Requirements
+## Quick Start
 
-- PHP 8.2 or newer and Composer.
-- Node.js and npm for compiling frontend assets.
-- MySQL/MariaDB for deployment, or SQLite for local development.
+```bash
+# 1. Install all dependencies (root + workspaces)
+pnpm install
 
-## Local setup
+# 2. Set up backend environment
+cp backend/.env.example backend/.env
+# Edit backend/.env — fill in DATABASE_URL, JWT_SECRET, Cloudinary creds
 
-From the project directory in PowerShell:
+# 3. Set up frontend environment
+cp frontend/.env.example frontend/.env.local
+# Edit frontend/.env.local if needed (default points to localhost:4000)
 
-```powershell
-composer install
-npm ci
-Copy-Item .env.example .env
-php artisan key:generate
+# 4. Push Prisma schema to Neon database
+pnpm prisma:push
+
+# 5. Run frontend + backend simultaneously
+pnpm dev
 ```
 
-Configure `.env` with the database connection and a one-time initial admin account:
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:4000/api/v1 |
+| Swagger Docs | http://localhost:4000/api/docs |
+| Admin Panel | http://localhost:3000/admin |
 
-```dotenv
-APP_URL=http://127.0.0.1:8000
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=royal_shine
-DB_USERNAME=your_database_user
-DB_PASSWORD=your_database_password
+## Commands
 
-ADMIN_NAME="Royal Shine Admin"
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=use-a-long-unique-password
+```bash
+# Development
+pnpm dev                # Run frontend + backend concurrently
+pnpm dev:frontend       # Next.js only
+pnpm dev:backend        # NestJS only (watch mode)
+
+# Build
+pnpm build              # Build both frontend and backend
+
+# Database
+pnpm prisma:push        # Push schema to Neon (no migration history)
+pnpm prisma:migrate     # Create & run migration
+pnpm prisma:studio      # Open Prisma Studio GUI
+
+# Tests
+pnpm test               # Run backend tests (Jest)
+
+# Lint
+pnpm lint               # Lint both workspaces
 ```
 
-Create the database before migrating, then run:
+## Project Structure
 
-```powershell
-php artisan migrate --seed
-php artisan storage:link
-npm run build
-php artisan serve
+```
+royal-shine/
+├── frontend/           # Next.js 15 app
+│   ├── src/
+│   │   ├── app/        # App router pages
+│   │   ├── components/ # Shared UI components
+│   │   ├── lib/        # API client, utilities
+│   │   └── types/      # TypeScript interfaces
+│   ├── public/
+│   └── package.json
+│
+├── backend/            # NestJS API
+│   ├── src/
+│   │   ├── modules/    # Feature modules (products, auth, etc.)
+│   │   ├── common/     # Guards, decorators, filters
+│   │   └── config/     # App configuration
+│   ├── prisma/
+│   │   └── schema.prisma
+│   └── package.json
+│
+├── docs/               # Architecture & API docs
+│   ├── ARCHITECTURE.md
+│   ├── API_DOCUMENTATION.md
+│   ├── DATABASE_SCHEMA.md
+│   └── MIGRATION_REPORT.md
+│
+├── package.json        # Root workspace
+└── README.md
 ```
 
-Open the application at `http://127.0.0.1:8000` and the admin panel at `http://127.0.0.1:8000/admin` (or the path configured by `ADMIN_PATH`).
+## Environment Variables
 
-The seeder creates an initial super-admin only when both `ADMIN_EMAIL` and `ADMIN_PASSWORD` are set. It uses `firstOrCreate`, so re-running the seeder does not replace an existing user's password or role. Remove the bootstrap password from `.env` after the initial seed and clear cached configuration with `php artisan config:clear`. Do not commit `.env` or use example credentials in production.
+### Backend (`backend/.env`)
 
-To run the development server and Vite together, use `composer run dev`.
-
-## Admin roles
-
-| Role | Access |
-| --- | --- |
-| `super_admin` | All admin modules, including user and activity-log management |
-| `admin` | Catalogue, content, enquiries, customers, and settings |
-| `content_manager` | Catalogue and public-content modules |
-| `enquiry_manager` | Enquiries and customer enquiry history |
-
-Admin accounts can be managed from the Users area by an authorized administrator. Configure SMTP in `.env` if password-reset email is required. Public enquiries are saved in the admin panel; email delivery depends on the configured mail transport.
-
-## Tests and production assets
-
-Run the automated test suite and production asset build with:
-
-```powershell
-php artisan test
-npm run build
+```env
+DATABASE_URL=postgresql://...@neon.tech/royal-shine?sslmode=require
+JWT_SECRET=your-secret-key
+JWT_EXPIRES_IN=7d
+CLOUDINARY_CLOUD_NAME=dupzif1h3
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+PORT=4000
+NODE_ENV=development
 ```
 
-The PHPUnit configuration uses an in-memory SQLite database so tests do not alter the configured development database.
+### Frontend (`frontend/.env.local`)
 
-## Shared-hosting deployment
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=dupzif1h3
+```
 
-1. Provision PHP 8.2+, Composer, MySQL/MariaDB, and the PHP extensions required by Laravel (including PDO for MySQL, Mbstring, OpenSSL, Fileinfo, Ctype, XML, and tokenizer). Set the site's PHP version and document root.
-2. Deploy the application so the web server's document root points to the project's `public` directory. Do not expose the repository root, `.env`, `vendor`, or storage directories through the web server.
-3. Configure the production `.env` with a unique `APP_KEY`, HTTPS `APP_URL`, `APP_ENV=production`, `APP_DEBUG=false`, database credentials, `FILESYSTEM_DISK=public`, and SMTP settings. Keep secrets out of source control.
-4. Build assets before or during deployment with `npm ci` and `npm run build`; production servers do not need Node.js if the generated `public/build` assets are uploaded.
-5. Install PHP dependencies with `composer install --no-dev --optimize-autoloader`, then run `php artisan migrate --force`. Back up the database before applying migrations. Do not run `migrate:fresh` on a live site.
-6. Run `php artisan storage:link` and ensure `storage` and `bootstrap/cache` are writable by the PHP process. Confirm uploaded product and banner images are publicly readable.
-7. Seed categories and the initial admin only when appropriate. Set `ADMIN_EMAIL` and a strong `ADMIN_PASSWORD` for the first `php artisan db:seed --force`; then remove the bootstrap password and clear cached configuration. The seeder will not overwrite an existing account.
-8. Run `php artisan optimize` after environment and migration setup. Clear/rebuild Laravel caches on each deployment when routes, configuration, or views change. Use HTTPS and verify the public pages, image uploads, enquiry submission, admin login, and password reset before launch.
+## Documentation
 
-If the host cannot set the document root to `public`, ask the hosting provider for a secure Laravel deployment configuration rather than exposing the application root.
+- [Architecture Overview](docs/ARCHITECTURE.md)
+- [API Documentation](docs/API_DOCUMENTATION.md)
+- [Database Schema](docs/DATABASE_SCHEMA.md)
+- [Migration Report](docs/MIGRATION_REPORT.md)
+
+## Default Admin Credentials
+
+After seeding, log in at `/admin/login`:
+
+| Field | Value |
+|---|---|
+| Email | admin@royalshine.com |
+| Password | (set via seed script) |
+
+---
+
+> See [MIGRATION_REPORT.md](docs/MIGRATION_REPORT.md) for the full list of migrated features and known limitations.

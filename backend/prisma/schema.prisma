@@ -1,0 +1,315 @@
+// Royal Shine - Prisma Schema for PostgreSQL (Neon)
+// Generated for NestJS backend migration from Laravel/SQLite
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  super_admin
+  admin
+  content_manager
+  enquiry_manager
+}
+
+enum ContentStatus {
+  active
+  inactive
+}
+
+enum ProductStatus {
+  draft
+  published
+  inactive
+}
+
+enum MetalType {
+  gold
+  silver
+  artificial
+  other
+}
+
+enum GoldPurity {
+  K9  @map("9K")
+  K14 @map("14K")
+  K18 @map("18K")
+  K22 @map("22K")
+}
+
+enum EnquiryType {
+  product
+  contact
+}
+
+enum EnquiryStatus {
+  new
+  contacted
+  in_progress
+  converted
+  closed
+}
+
+enum ProcessingStatus {
+  pending
+  processing
+  completed
+  failed
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id                Int                @id @default(autoincrement())
+  name              String
+  email             String             @unique
+  password          String
+  isAdmin           Boolean            @default(false) @map("is_admin")
+  role              UserRole           @default(admin)
+  emailVerifiedAt   DateTime?          @map("email_verified_at")
+  rememberToken     String?            @map("remember_token")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+
+  assignedEnquiries Enquiry[]          @relation("AssignedAdmin")
+  activityLogs      AdminActivityLog[]
+
+  @@map("users")
+}
+
+model Category {
+  id             Int           @id @default(autoincrement())
+  name           String
+  slug           String        @unique
+  description    String?
+  image          String?
+  isFeatured     Boolean       @default(false) @map("is_featured")
+  status         ContentStatus @default(active)
+  seoTitle       String?       @map("seo_title")
+  seoDescription String?       @map("seo_description")
+  sortOrder      Int           @default(0) @map("sort_order")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  products       Product[]
+
+  @@map("categories")
+}
+
+model Collection {
+  id             Int           @id @default(autoincrement())
+  name           String
+  slug           String        @unique
+  description    String?
+  image          String?
+  isFeatured     Boolean       @default(false) @map("is_featured")
+  status         ContentStatus @default(active)
+  seoTitle       String?       @map("seo_title")
+  seoDescription String?       @map("seo_description")
+  sortOrder      Int           @default(0) @map("sort_order")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  products       Product[]
+
+  @@map("collections")
+}
+
+model Product {
+  id               Int           @id @default(autoincrement())
+  categoryId       Int           @map("category_id")
+  collectionId     Int?          @map("collection_id")
+  name             String
+  slug             String        @unique
+  sku              String        @unique
+  shortDescription String?       @map("short_description")
+  description      String?
+  metalType        MetalType?    @map("metal_type")
+  goldPurity       GoldPurity?   @map("gold_purity")
+  weight           Decimal?      @db.Decimal(10, 3)
+  weightUnit       String?       @map("weight_unit")
+  stoneDetails     String?       @map("stone_details")
+  price            Decimal?      @db.Decimal(12, 2)
+  priceOnRequest   Boolean       @default(false) @map("price_on_request")
+  isFeatured       Boolean       @default(false) @map("is_featured")
+  status           ProductStatus @default(draft)
+  seoTitle         String?       @map("seo_title")
+  seoDescription   String?       @map("seo_description")
+  sortOrder        Int           @default(0) @map("sort_order")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  category         Category      @relation(fields: [categoryId], references: [id])
+  collection       Collection?   @relation(fields: [collectionId], references: [id])
+  images           ProductImage[]
+  enquiries        Enquiry[]
+
+  @@map("products")
+}
+
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  productId Int      @map("product_id")
+  image     String
+  altText   String?  @map("alt_text")
+  sortOrder Int      @default(0) @map("sort_order")
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+model Banner {
+  id         Int           @id @default(autoincrement())
+  image      String
+  heading    String?
+  subheading String?
+  ctaLabel   String?       @map("cta_label")
+  ctaUrl     String?       @map("cta_url")
+  status     ContentStatus @default(active)
+  sortOrder  Int           @default(0) @map("sort_order")
+  mobileImage String?      @map("mobile_image")
+  altText    String?       @map("alt_text")
+  startsAt   DateTime?     @map("starts_at")
+  endsAt     DateTime?     @map("ends_at")
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+
+  @@map("banners")
+}
+
+model Enquiry {
+  id              Int           @id @default(autoincrement())
+  productId       Int?          @map("product_id")
+  assignedAdminId Int?          @map("assigned_admin_id")
+  name            String
+  mobile          String
+  email           String?
+  subject         String?
+  enquiryType     EnquiryType   @default(contact) @map("enquiry_type")
+  productReference String?      @map("product_reference")
+  message         String?
+  status          EnquiryStatus @default(new)
+  internalNotes   String?       @map("internal_notes")
+  followUpDate    DateTime?     @db.Date @map("follow_up_date")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  product         Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
+  assignedAdmin   User?         @relation("AssignedAdmin", fields: [assignedAdminId], references: [id], onDelete: SetNull)
+
+  @@map("enquiries")
+}
+
+model Page {
+  id             Int      @id @default(autoincrement())
+  slug           String   @unique
+  title          String
+  content        String?
+  status         String   @default("active")
+  seoTitle       String?  @map("seo_title")
+  seoDescription String?  @map("seo_description")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("pages")
+}
+
+model Gallery {
+  id          Int           @id @default(autoincrement())
+  image       String
+  title       String?
+  description String?
+  altText     String?       @map("alt_text")
+  status      ContentStatus @default(active)
+  sortOrder   Int           @default(0) @map("sort_order")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  @@map("galleries")
+}
+
+model Setting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String?
+  group     String   @default("general")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+model Testimonial {
+  id               Int      @id @default(autoincrement())
+  customerName     String   @map("customer_name")
+  customerLocation String?  @map("customer_location")
+  testimonial      String
+  image            String?
+  rating           Int      @default(5)
+  sortOrder        Int      @default(0) @map("sort_order")
+  isApproved       Boolean  @default(false) @map("is_approved")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("testimonials")
+}
+
+model AdminActivityLog {
+  id            Int      @id @default(autoincrement())
+  userId        Int?     @map("user_id")
+  action        String
+  module        String
+  subjectType   String?  @map("subject_type")
+  subjectId     String?  @map("subject_id")
+  changedFields Json?    @map("changed_fields")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("admin_activity_logs")
+}
+
+model Notification {
+  id             Int      @id @default(autoincrement())
+  type           String
+  notifiableType String   @map("notifiable_type")
+  notifiableId   Int      @map("notifiable_id")
+  data           Json
+  readAt         DateTime? @map("read_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("notifications")
+}
+
+model ImageOptimization {
+  id               Int              @id @default(autoincrement())
+  originalPath     String           @unique @map("original_path")
+  webpPath         String?          @map("webp_path")
+  avifPath         String?          @map("avif_path")
+  thumbnailPath    String?          @map("thumbnail_path")
+  mediumPath       String?          @map("medium_path")
+  largePath        String?          @map("large_path")
+  originalSize     Int?             @map("original_size")
+  optimizedSize    Int?             @map("optimized_size")
+  width            Int?
+  height           Int?
+  mimeType         String?          @map("mime_type")
+  processingStatus ProcessingStatus @default(pending) @map("processing_status")
+  errorMessage     String?          @map("error_message")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  @@map("image_optimizations")
+}
