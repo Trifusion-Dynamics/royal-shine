@@ -1,300 +1,558 @@
 import { PrismaClient, UserRole, ContentStatus, ProductStatus, MetalType, GoldPurity, EnquiryStatus, EnquiryType } from '@prisma/client';
-import * as fs from 'fs';
-import * as path from 'path';
 
 const prisma = new PrismaClient();
 
+const IK = (path: string, opts?: { width?: number; height?: number; quality?: number }) => {
+  const endpoint = process.env.IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/royalshine';
+  const w = opts?.width ? `w-${opts.width},` : '';
+  const h = opts?.height ? `h-${opts.height},` : '';
+  const q = opts?.quality ? `q-${opts.quality},` : '';
+  return `${endpoint}/tr:${w}${h}${q}${path}`;
+};
+
+const IMG = (file: string, w?: number, h?: number) => IK(file, { width: w, height: h, quality: 80 });
+
 async function main() {
-  console.log('🌱 Starting database seed from SQLite dump...');
+  console.log('🌱 Seeding Royal Shine premium jewellery database...');
 
-  const dumpPath = path.resolve('C:/Users/arunk/.gemini/antigravity/brain/cec52090-36ee-4573-b616-8596489233bb/scratch/sqlite_dump.json');
-  let dump: any = {};
-  if (fs.existsSync(dumpPath)) {
-    dump = JSON.parse(fs.readFileSync(dumpPath, 'utf8'));
-  }
-
-  // 1. Seed Users
+  // ── 1. Users ──
   console.log('Seeding users...');
-  const users = dump.users?.records || [];
-  if (users.length === 0) {
-    // Default admin
-    await prisma.user.upsert({
-      where: { email: 'admin@example.com' },
-      update: {},
-      create: {
-        name: 'Admin',
-        email: 'admin@example.com',
-        password: '$2y$12$e0NZBqK1eTqjJ3Qp6d8hceW.7ZgWnS/q.4Gv9bY6Hq2oM5x2g3uC.', // bcrypt
-        isAdmin: true,
-        role: UserRole.super_admin,
-      },
-    });
-  } else {
-    for (const u of users) {
-      await prisma.user.upsert({
-        where: { email: u.email },
-        update: {},
-        create: {
-          id: u.id,
-          name: u.name,
-          email: u.email,
-          password: u.password,
-          isAdmin: Boolean(u.is_admin),
-          role: (u.role as UserRole) || UserRole.super_admin,
-          emailVerifiedAt: u.email_verified_at ? new Date(u.email_verified_at) : null,
-          rememberToken: u.remember_token,
-          createdAt: u.created_at ? new Date(u.created_at) : new Date(),
-          updatedAt: u.updated_at ? new Date(u.updated_at) : new Date(),
-        },
-      });
-    }
-  }
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@royalshine.in' },
+    update: {},
+    create: {
+      name: 'Royal Shine Admin',
+      email: 'admin@royalshine.in',
+      password: '$2b$10$hashedplaceholder',
+      role: UserRole.super_admin,
+      isAdmin: true,
+    },
+  });
 
-  // 2. Seed Categories
+  // ── 2. Categories ──
   console.log('Seeding categories...');
-  const categories = dump.categories?.records || [];
-  for (const c of categories) {
-    await prisma.category.upsert({
-      where: { slug: c.slug },
+  const categories = await Promise.all([
+    prisma.category.upsert({
+      where: { slug: 'gold-jewellery' },
       update: {},
       create: {
-        id: c.id,
-        name: c.name,
-        slug: c.slug,
-        description: c.description,
-        image: c.image,
-        isFeatured: Boolean(c.is_featured),
-        status: (c.status as ContentStatus) || ContentStatus.active,
-        seoTitle: c.seo_title,
-        seoDescription: c.seo_description,
-        sortOrder: c.sort_order ?? 0,
-        createdAt: c.created_at ? new Date(c.created_at) : new Date(),
-        updatedAt: c.updated_at ? new Date(c.updated_at) : new Date(),
+        name: 'Gold Jewellery',
+        slug: 'gold-jewellery',
+        description: 'Pure hallmarked gold jewellery crafted for every celebration.',
+        image: IMG('categories/gold.jpg', 600, 600),
+        isFeatured: true,
+        status: ContentStatus.active,
+        sortOrder: 1,
       },
-    });
-  }
+    }),
+    prisma.category.upsert({
+      where: { slug: 'diamond-jewellery' },
+      update: {},
+      create: {
+        name: 'Diamond Jewellery',
+        slug: 'diamond-jewellery',
+        description: 'Certified diamond jewellery for unforgettable moments.',
+        image: IMG('categories/diamond.jpg', 600, 600),
+        isFeatured: true,
+        status: ContentStatus.active,
+        sortOrder: 2,
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'silver-jewellery' },
+      update: {},
+      create: {
+        name: 'Silver Jewellery',
+        slug: 'silver-jewellery',
+        description: 'Elegant handcrafted silver jewellery for daily wear.',
+        image: IMG('categories/silver.jpg', 600, 600),
+        isFeatured: false,
+        status: ContentStatus.active,
+        sortOrder: 3,
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'bridal-collection' },
+      update: {},
+      create: {
+        name: 'Bridal Collection',
+        slug: 'bridal-collection',
+        description: 'Exquisite bridal sets designed for your special day.',
+        image: IMG('categories/bridal.jpg', 600, 600),
+        isFeatured: true,
+        status: ContentStatus.active,
+        sortOrder: 4,
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'artificial-jewellery' },
+      update: {},
+      create: {
+        name: 'Artificial Jewellery',
+        slug: 'artificial-jewellery',
+        description: 'Affordable fashion jewellery for every occasion.',
+        image: IMG('categories/artificial.jpg', 600, 600),
+        isFeatured: false,
+        status: ContentStatus.active,
+        sortOrder: 5,
+      },
+    }),
+  ]);
 
-  // 3. Seed Collections
+  const goldCat = categories[0];
+  const diamondCat = categories[1];
+  const silverCat = categories[2];
+  const bridalCat = categories[3];
+
+  // ── 3. Collections ──
   console.log('Seeding collections...');
-  const collections = dump.collections?.records || [];
-  for (const col of collections) {
-    await prisma.collection.upsert({
-      where: { slug: col.slug },
+  const collections = await Promise.all([
+    prisma.collection.upsert({
+      where: { slug: 'heritage-gold' },
       update: {},
       create: {
-        id: col.id,
-        name: col.name,
-        slug: col.slug,
-        description: col.description,
-        image: col.image,
-        isFeatured: Boolean(col.is_featured),
-        status: (col.status as ContentStatus) || ContentStatus.active,
-        seoTitle: col.seo_title,
-        seoDescription: col.seo_description,
-        sortOrder: col.sort_order ?? 0,
-        createdAt: col.created_at ? new Date(col.created_at) : new Date(),
-        updatedAt: col.updated_at ? new Date(col.updated_at) : new Date(),
+        name: 'Heritage Gold',
+        slug: 'heritage-gold',
+        description: 'Timeless gold designs inspired by royal heritage.',
+        image: IMG('collections/heritage.jpg', 600, 600),
+        isFeatured: true,
+        status: ContentStatus.active,
+        sortOrder: 1,
       },
-    });
-  }
+    }),
+    prisma.collection.upsert({
+      where: { slug: 'eternal-diamonds' },
+      update: {},
+      create: {
+        name: 'Eternal Diamonds',
+        slug: 'eternal-diamonds',
+        description: 'Certified diamonds that shine forever.',
+        image: IMG('collections/eternal.jpg', 600, 600),
+        isFeatured: true,
+        status: ContentStatus.active,
+        sortOrder: 2,
+      },
+    }),
+    prisma.collection.upsert({
+      where: { slug: 'bridal-splendour' },
+      update: {},
+      create: {
+        name: 'Bridal Splendour',
+        slug: 'bridal-splendour',
+        description: 'Complete bridal jewellery sets for your wedding day.',
+        image: IMG('collections/bridal-splendour.jpg', 600, 600),
+        isFeatured: true,
+        status: ContentStatus.active,
+        sortOrder: 3,
+      },
+    }),
+    prisma.collection.upsert({
+      where: { slug: 'everyday-elegance' },
+      update: {},
+      create: {
+        name: 'Everyday Elegance',
+        slug: 'everyday-elegance',
+        description: 'Lightweight designs for daily wear.',
+        image: IMG('collections/everyday.jpg', 600, 600),
+        isFeatured: false,
+        status: ContentStatus.active,
+        sortOrder: 4,
+      },
+    }),
+  ]);
 
-  // 4. Seed Products
+  const heritageCol = collections[0];
+  const eternalCol = collections[1];
+  const bridalCol = collections[2];
+  const everydayCol = collections[3];
+
+  // ── 4. Products ──
   console.log('Seeding products...');
-  const products = dump.products?.records || [];
-  for (const p of products) {
-    let purity: GoldPurity | null = null;
-    if (p.gold_purity === '9K') purity = GoldPurity.K9;
-    else if (p.gold_purity === '14K') purity = GoldPurity.K14;
-    else if (p.gold_purity === '18K') purity = GoldPurity.K18;
-    else if (p.gold_purity === '22K') purity = GoldPurity.K22;
-
-    let metal: MetalType | null = null;
-    if (['gold', 'silver', 'artificial', 'other'].includes(p.metal_type)) {
-      metal = p.metal_type as MetalType;
-    }
-
-    let pStatus: ProductStatus = ProductStatus.draft;
-    if (p.status === 'published') pStatus = ProductStatus.published;
-    else if (p.status === 'inactive') pStatus = ProductStatus.inactive;
-
-    await prisma.product.upsert({
-      where: { slug: p.slug },
-      update: {},
-      create: {
-        id: p.id,
-        categoryId: p.category_id,
-        collectionId: p.collection_id || null,
-        name: p.name,
-        slug: p.slug,
-        sku: p.sku,
-        shortDescription: p.short_description,
-        description: p.description,
-        metalType: metal,
-        goldPurity: purity,
-        weight: p.weight !== null && p.weight !== undefined ? p.weight : null,
-        weightUnit: p.weight_unit || 'g',
-        stoneDetails: p.stone_details,
-        price: p.price !== null && p.price !== undefined ? p.price : null,
-        priceOnRequest: Boolean(p.price_on_request),
-        isFeatured: Boolean(p.is_featured),
-        status: pStatus,
-        seoTitle: p.seo_title,
-        seoDescription: p.seo_description,
-        sortOrder: p.sort_order ?? 0,
-        createdAt: p.created_at ? new Date(p.created_at) : new Date(),
-        updatedAt: p.updated_at ? new Date(p.updated_at) : new Date(),
-      },
-    });
-  }
-
-  // 5. Seed Product Images
-  console.log('Seeding product images...');
-  const productImages = dump.product_images?.records || [];
-  for (const pi of productImages) {
-    const exists = await prisma.productImage.findUnique({ where: { id: pi.id } });
-    if (!exists) {
-      await prisma.productImage.create({
-        data: {
-          id: pi.id,
-          productId: pi.product_id,
-          image: pi.image,
-          altText: pi.alt_text,
-          sortOrder: pi.sort_order ?? 0,
-          isPrimary: Boolean(pi.is_primary),
-          createdAt: pi.created_at ? new Date(pi.created_at) : new Date(),
-          updatedAt: pi.updated_at ? new Date(pi.updated_at) : new Date(),
+  const products = await Promise.all([
+    // Heritage Gold collection
+    prisma.product.create({
+      data: {
+        name: 'Royal Heritage Gold Necklace',
+        slug: 'royal-heritage-gold-necklace',
+        sku: 'RS-GN-001',
+        categoryId: goldCat.id,
+        collectionId: heritageCol.id,
+        shortDescription: '22K hallmarked gold necklace with intricate filigree work.',
+        description: 'A masterpiece of 22K hallmarked gold, featuring intricate filigree work inspired by royal Indian heritage. Perfect for weddings and grand celebrations.',
+        metalType: MetalType.gold,
+        goldPurity: GoldPurity.K22,
+        weight: 28.5,
+        weightUnit: 'g',
+        stoneDetails: 'None',
+        price: 185000,
+        priceOnRequest: false,
+        isFeatured: true,
+        status: ProductStatus.published,
+        sortOrder: 1,
+        images: {
+          create: [
+            { image: IMG('products/heritage-necklace-1.jpg', 800, 800), altText: 'Royal Heritage Gold Necklace - Front view', isPrimary: true, sortOrder: 1 },
+            { image: IMG('products/heritage-necklace-2.jpg', 800, 800), altText: 'Royal Heritage Gold Necklace - Detail view', isPrimary: false, sortOrder: 2 },
+            { image: IMG('products/heritage-necklace-3.jpg', 800, 800), altText: 'Royal Heritage Gold Necklace - Worn view', isPrimary: false, sortOrder: 3 },
+          ],
         },
-      });
-    }
-  }
+      },
+      include: { images: true },
+    }),
+    prisma.product.create({
+      data: {
+        name: 'Heritage Gold Jhumka Pair',
+        slug: 'heritage-gold-jhumka-pair',
+        sku: 'RS-GE-002',
+        categoryId: goldCat.id,
+        collectionId: heritageCol.id,
+        shortDescription: 'Traditional 22K gold jhumkas with dangling pearls.',
+        description: 'Classic 22K gold jhumkas with delicate dangling pearls. A timeless pair that complements every traditional outfit.',
+        metalType: MetalType.gold,
+        goldPurity: GoldPurity.K22,
+        weight: 12.0,
+        weightUnit: 'g',
+        stoneDetails: 'Freshwater pearls',
+        price: 68000,
+        priceOnRequest: false,
+        isFeatured: true,
+        status: ProductStatus.published,
+        sortOrder: 2,
+        images: {
+          create: [
+            { image: IMG('products/jhumka-1.jpg', 800, 800), altText: 'Heritage Gold Jhumka Pair', isPrimary: true, sortOrder: 1 },
+            { image: IMG('products/jhumka-2.jpg', 800, 800), altText: 'Heritage Gold Jhumka Detail', isPrimary: false, sortOrder: 2 },
+          ],
+        },
+      },
+      include: { images: true },
+    }),
+    // Eternal Diamonds collection
+    prisma.product.create({
+      data: {
+        name: 'Eternal Diamond Solitaire Ring',
+        slug: 'eternal-diamond-solitaire-ring',
+        sku: 'RS-DR-003',
+        categoryId: diamondCat.id,
+        collectionId: eternalCol.id,
+        shortDescription: '1.5 carat certified diamond solitaire in 18K white gold.',
+        description: 'A breathtaking 1.5 carat GIA-certified diamond solitaire set in 18K white gold. Designed for proposals and anniversaries.',
+        metalType: MetalType.gold,
+        goldPurity: GoldPurity.K18,
+        weight: 4.2,
+        weightUnit: 'g',
+        stoneDetails: '1.5 ct GIA-certified diamond, VS1 clarity, G color',
+        price: 450000,
+        priceOnRequest: false,
+        isFeatured: true,
+        status: ProductStatus.published,
+        sortOrder: 1,
+        images: {
+          create: [
+            { image: IMG('products/solitaire-ring-1.jpg', 800, 800), altText: 'Eternal Diamond Solitaire Ring', isPrimary: true, sortOrder: 1 },
+            { image: IMG('products/solitaire-ring-2.jpg', 800, 800), altText: 'Diamond Solitaire Ring - Side profile', isPrimary: false, sortOrder: 2 },
+          ],
+        },
+      },
+      include: { images: true },
+    }),
+    prisma.product.create({
+      data: {
+        name: 'Diamond Tennis Bracelet',
+        slug: 'diamond-tennis-bracelet',
+        sku: 'RS-DB-004',
+        categoryId: diamondCat.id,
+        collectionId: eternalCol.id,
+        shortDescription: '2.0 carat total diamond tennis bracelet in 18K white gold.',
+        description: 'A stunning 2.0 carat total weight diamond tennis bracelet in 18K white gold. Continuous sparkle for your wrist.',
+        metalType: MetalType.gold,
+        goldPurity: GoldPurity.K18,
+        weight: 18.5,
+        weightUnit: 'g',
+        stoneDetails: '2.0 ct total diamonds, VS2 clarity, H color',
+        price: 320000,
+        priceOnRequest: false,
+        isFeatured: false,
+        status: ProductStatus.published,
+        sortOrder: 2,
+        images: {
+          create: [
+            { image: IMG('products/tennis-bracelet-1.jpg', 800, 800), altText: 'Diamond Tennis Bracelet', isPrimary: true, sortOrder: 1 },
+          ],
+        },
+      },
+      include: { images: true },
+    }),
+    // Bridal Splendour collection
+    prisma.product.create({
+      data: {
+        name: 'Bridal Splendour Necklace Set',
+        slug: 'bridal-splendour-necklace-set',
+        sku: 'RS-BS-005',
+        categoryId: bridalCat.id,
+        collectionId: bridalCol.id,
+        shortDescription: 'Complete 22K gold bridal necklace, earrings, and maang tikka set.',
+        description: 'The ultimate bridal set in 22K hallmarked gold. Includes necklace, matching jhumkas, and maang tikka. Designed to make every bride feel like royalty.',
+        metalType: MetalType.gold,
+        goldPurity: GoldPurity.K22,
+        weight: 85.0,
+        weightUnit: 'g',
+        stoneDetails: 'Uncut diamonds and rubies',
+        price: 650000,
+        priceOnRequest: false,
+        isFeatured: true,
+        status: ProductStatus.published,
+        sortOrder: 1,
+        images: {
+          create: [
+            { image: IMG('products/bridal-set-1.jpg', 800, 800), altText: 'Bridal Splendour Necklace Set', isPrimary: true, sortOrder: 1 },
+            { image: IMG('products/bridal-set-2.jpg', 800, 800), altText: 'Bridal Set - Earrings detail', isPrimary: false, sortOrder: 2 },
+            { image: IMG('products/bridal-set-3.jpg', 800, 800), altText: 'Bridal Set - Maang tikka detail', isPrimary: false, sortOrder: 3 },
+          ],
+        },
+      },
+      include: { images: true },
+    }),
+    prisma.product.create({
+      data: {
+        name: 'Bridal Gold Bangles Pair',
+        slug: 'bridal-gold-bangles-pair',
+        sku: 'RS-BB-006',
+        categoryId: bridalCat.id,
+        collectionId: bridalCol.id,
+        shortDescription: '22K gold bridal bangles with intricate engraving.',
+        description: 'Traditional 22K gold bridal bangles with intricate engraving work. A must-have for every Indian bride.',
+        metalType: MetalType.gold,
+        goldPurity: GoldPurity.K22,
+        weight: 65.0,
+        weightUnit: 'g',
+        stoneDetails: 'None',
+        price: 425000,
+        priceOnRequest: false,
+        isFeatured: false,
+        status: ProductStatus.published,
+        sortOrder: 2,
+        images: {
+          create: [
+            { image: IMG('products/bridal-bangles-1.jpg', 800, 800), altText: 'Bridal Gold Bangles Pair', isPrimary: true, sortOrder: 1 },
+          ],
+        },
+      },
+      include: { images: true },
+    }),
+    // Everyday Elegance - Silver
+    prisma.product.create({
+      data: {
+        name: 'Silver Lotus Pendant',
+        slug: 'silver-lotus-pendant',
+        sku: 'RS-SP-007',
+        categoryId: silverCat.id,
+        collectionId: everydayCol.id,
+        shortDescription: 'Sterling silver lotus flower pendant with chain.',
+        description: 'A delicate sterling silver lotus flower pendant on an adjustable chain. Minimal elegance for everyday wear.',
+        metalType: MetalType.silver,
+        weight: 5.5,
+        weightUnit: 'g',
+        stoneDetails: 'None',
+        price: 4500,
+        priceOnRequest: false,
+        isFeatured: false,
+        status: ProductStatus.published,
+        sortOrder: 1,
+        images: {
+          create: [
+            { image: IMG('products/lotus-pendant-1.jpg', 800, 800), altText: 'Silver Lotus Pendant', isPrimary: true, sortOrder: 1 },
+          ],
+        },
+      },
+      include: { images: true },
+    }),
+    prisma.product.create({
+      data: {
+        name: 'Silver Oxidised Earrings',
+        slug: 'silver-oxidised-earrings',
+        sku: 'RS-SE-008',
+        categoryId: silverCat.id,
+        collectionId: everydayCol.id,
+        shortDescription: 'Oxidised silver jhumka earrings for casual wear.',
+        description: 'Oxidised silver jhumka earrings with traditional motifs. Perfect for casual outings and office wear.',
+        metalType: MetalType.silver,
+        weight: 8.0,
+        weightUnit: 'g',
+        stoneDetails: 'None',
+        price: 3200,
+        priceOnRequest: false,
+        isFeatured: false,
+        status: ProductStatus.published,
+        sortOrder: 2,
+        images: {
+          create: [
+            { image: IMG('products/oxidised-earrings-1.jpg', 800, 800), altText: 'Silver Oxidised Earrings', isPrimary: true, sortOrder: 1 },
+          ],
+        },
+      },
+      include: { images: true },
+    }),
+    // Gold - 18K
+    prisma.product.create({
+      data: {
+        name: '18K Gold Pendant with Chain',
+        slug: '18k-gold-pendant-chain',
+        sku: 'RS-GP-009',
+        categoryId: goldCat.id,
+        collectionId: heritageCol.id,
+        shortDescription: '18K gold pendant with delicate chain.',
+        description: 'Elegant 18K gold pendant with a delicate chain. Suitable for gifting and daily wear.',
+        metalType: MetalType.gold,
+        goldPurity: GoldPurity.K18,
+        weight: 6.5,
+        weightUnit: 'g',
+        stoneDetails: 'None',
+        price: 42000,
+        priceOnRequest: false,
+        isFeatured: false,
+        status: ProductStatus.published,
+        sortOrder: 3,
+        images: {
+          create: [
+            { image: IMG('products/18k-pendant-1.jpg', 800, 800), altText: '18K Gold Pendant with Chain', isPrimary: true, sortOrder: 1 },
+          ],
+        },
+      },
+      include: { images: true },
+    }),
+  ]);
 
-  // 6. Seed Banners
+  console.log(`Seeded ${products.length} products`);
+
+  // ── 5. Banners ──
   console.log('Seeding banners...');
-  const banners = dump.banners?.records || [];
-  for (const b of banners) {
-    const exists = await prisma.banner.findUnique({ where: { id: b.id } });
-    if (!exists) {
-      await prisma.banner.create({
-        data: {
-          id: b.id,
-          image: b.image,
-          mobileImage: b.mobile_image,
-          heading: b.heading,
-          subheading: b.subheading,
-          ctaLabel: b.cta_label,
-          ctaUrl: b.cta_url,
-          status: (b.status as ContentStatus) || ContentStatus.active,
-          sortOrder: b.sort_order ?? 0,
-          altText: b.alt_text,
-          startsAt: b.starts_at ? new Date(b.starts_at) : null,
-          endsAt: b.ends_at ? new Date(b.ends_at) : null,
-          createdAt: b.created_at ? new Date(b.created_at) : new Date(),
-          updatedAt: b.updated_at ? new Date(b.updated_at) : new Date(),
-        },
-      });
-    }
-  }
+  await Promise.all([
+    prisma.banner.create({
+      data: {
+        image: IMG('banners/hero-1.jpg', 1600, 600),
+        heading: 'The Art of Adornment',
+        subheading: 'Every piece tells your story. Discover jewellery that celebrates your moments.',
+        ctaLabel: 'Explore Collection',
+        ctaUrl: '/jewellery',
+        status: ContentStatus.active,
+        sortOrder: 1,
+        altText: 'Royal Shine jewellery hero banner',
+      },
+    }),
+    prisma.banner.create({
+      data: {
+        image: IMG('banners/hero-2.jpg', 1600, 600),
+        heading: 'Bridal Splendour',
+        subheading: 'Exquisite 22K gold bridal sets for your wedding day.',
+        ctaLabel: 'View Bridal Collection',
+        ctaUrl: '/collections/bridal-splendour',
+        status: ContentStatus.active,
+        sortOrder: 2,
+        altText: 'Royal Shine bridal collection banner',
+      },
+    }),
+    prisma.banner.create({
+      data: {
+        image: IMG('banners/hero-3.jpg', 1600, 600),
+        heading: 'Eternal Diamonds',
+        subheading: 'Certified diamonds that shine forever.',
+        ctaLabel: 'Shop Diamonds',
+        ctaUrl: '/jewellery?category=diamond-jewellery',
+        status: ContentStatus.active,
+        sortOrder: 3,
+        altText: 'Royal Shine diamond collection banner',
+      },
+    }),
+  ]);
 
-  // 7. Seed Galleries
-  console.log('Seeding galleries...');
-  const galleries = dump.galleries?.records || [];
-  for (const g of galleries) {
-    const exists = await prisma.gallery.findUnique({ where: { id: g.id } });
-    if (!exists) {
-      await prisma.gallery.create({
-        data: {
-          id: g.id,
-          image: g.image,
-          title: g.title,
-          description: g.description,
-          altText: g.alt_text,
-          status: (g.status as ContentStatus) || ContentStatus.active,
-          sortOrder: g.sort_order ?? 0,
-          createdAt: g.created_at ? new Date(g.created_at) : new Date(),
-          updatedAt: g.updated_at ? new Date(g.updated_at) : new Date(),
-        },
-      });
-    }
-  }
+  // ── 6. Gallery ──
+  console.log('Seeding gallery...');
+  await Promise.all([
+    prisma.gallery.create({
+      data: {
+        image: IMG('gallery/gallery-1.jpg', 800, 800),
+        title: 'Wedding Day',
+        description: 'A bride adorned in Royal Shine bridal jewellery.',
+        altText: 'Bridal jewellery gallery',
+        status: ContentStatus.active,
+        sortOrder: 1,
+      },
+    }),
+    prisma.gallery.create({
+      data: {
+        image: IMG('gallery/gallery-2.jpg', 800, 800),
+        title: 'Festival Celebration',
+        description: 'Gold jewellery for festive occasions.',
+        altText: 'Festival jewellery gallery',
+        status: ContentStatus.active,
+        sortOrder: 2,
+      },
+    }),
+    prisma.gallery.create({
+      data: {
+        image: IMG('gallery/gallery-3.jpg', 800, 800),
+        title: 'Everyday Elegance',
+        description: 'Silver and gold for daily wear.',
+        altText: 'Everyday jewellery gallery',
+        status: ContentStatus.active,
+        sortOrder: 3,
+      },
+    }),
+  ]);
 
-  // 8. Seed Testimonials
+  // ── 7. Testimonials ──
   console.log('Seeding testimonials...');
-  const testimonials = dump.testimonials?.records || [];
-  for (const t of testimonials) {
-    const exists = await prisma.testimonial.findUnique({ where: { id: t.id } });
-    if (!exists) {
-      await prisma.testimonial.create({
-        data: {
-          id: t.id,
-          customerName: t.customer_name,
-          customerLocation: t.customer_location,
-          testimonial: t.testimonial,
-          image: t.image,
-          rating: t.rating ?? 5,
-          sortOrder: t.sort_order ?? 0,
-          isApproved: Boolean(t.is_approved),
-          createdAt: t.created_at ? new Date(t.created_at) : new Date(),
-          updatedAt: t.updated_at ? new Date(t.updated_at) : new Date(),
-        },
-      });
-    }
-  }
+  await Promise.all([
+    prisma.testimonial.create({
+      data: {
+        customerName: 'Priya Sharma',
+        customerLocation: 'Mumbai, India',
+        testimonial: 'The bridal set I purchased from Royal Shine exceeded all my expectations. The craftsmanship is exquisite and the quality is unmatched.',
+        image: IMG('testimonials/priya.jpg', 200, 200),
+        rating: 5,
+        sortOrder: 1,
+        isApproved: true,
+      },
+    }),
+    prisma.testimonial.create({
+      data: {
+        customerName: 'Rahul Verma',
+        customerLocation: 'Delhi, India',
+        testimonial: 'Bought a diamond solitaire ring for my proposal. The diamond is stunning and the service was exceptional.',
+        image: IMG('testimonials/rahul.jpg', 200, 200),
+        rating: 5,
+        sortOrder: 2,
+        isApproved: true,
+      },
+    }),
+    prisma.testimonial.create({
+      data: {
+        customerName: 'Ananya Reddy',
+        customerLocation: 'Bangalore, India',
+        testimonial: 'Love my silver lotus pendant. It is lightweight and perfect for everyday wear. Highly recommend Royal Shine.',
+        image: IMG('testimonials/ananya.jpg', 200, 200),
+        rating: 5,
+        sortOrder: 3,
+        isApproved: true,
+      },
+    }),
+  ]);
 
-  // 9. Seed Settings
+  // ── 8. Settings ──
   console.log('Seeding settings...');
-  const settings = dump.settings?.records || [];
-  for (const s of settings) {
-    await prisma.setting.upsert({
-      where: { key: s.key },
-      update: {},
-      create: {
-        key: s.key,
-        value: s.value !== null && s.value !== undefined ? String(s.value) : '',
-        group: s.group || 'general',
-      },
-    });
-  }
-
-  // 10. Seed Default Pages if empty
-  console.log('Seeding default static pages...');
-  const defaultPages = [
-    {
-      title: 'About Us',
-      slug: 'about-us',
-      content: 'Royal Shine is a premier jewellery boutique known for pure hallmarked gold, certified diamonds, and handcrafted silver jewellery.',
-      seoTitle: 'About Royal Shine - Heritage & Craftsmanship',
-      seoDescription: 'Discover the story, heritage, and uncompromising craftsmanship behind Royal Shine jewellery.',
-    },
-    {
-      title: 'Privacy Policy',
-      slug: 'privacy-policy',
-      content: 'At Royal Shine, we value your privacy. We collect customer enquiry information solely to assist you with your jewellery inquiries.',
-      seoTitle: 'Privacy Policy - Royal Shine',
-      seoDescription: 'Read the privacy policy of Royal Shine jewellery catalogue.',
-    },
-    {
-      title: 'Terms & Conditions',
-      slug: 'terms-and-conditions',
-      content: 'Welcome to Royal Shine. By browsing our jewellery catalogue, you agree to our terms and conditions. Prices and availability may vary.',
-      seoTitle: 'Terms & Conditions - Royal Shine',
-      seoDescription: 'Terms and conditions for browsing the Royal Shine catalogue and submitting enquiries.',
-    },
-  ];
-
-  for (const p of defaultPages) {
-    await prisma.page.upsert({
-      where: { slug: p.slug },
-      update: {},
-      create: {
-        title: p.title,
-        slug: p.slug,
-        content: p.content,
-        seoTitle: p.seoTitle,
-        seoDescription: p.seoDescription,
-        status: 'active',
-      },
-    });
-  }
+  await Promise.all([
+    prisma.setting.create({ data: { key: 'site_name', value: 'Royal Shine', group: 'general' } }),
+    prisma.setting.create({ data: { key: 'site_logo', value: IMG('logo/royal-shine.svg', 200, 60), group: 'general' } }),
+    prisma.setting.create({ data: { key: 'phone', value: '+91 98765 43210', group: 'contact' } }),
+    prisma.setting.create({ data: { key: 'whatsapp_number', value: '919876543210', group: 'contact' } }),
+    prisma.setting.create({ data: { key: 'email', value: 'hello@royalshine.in', group: 'contact' } }),
+    prisma.setting.create({ data: { key: 'address', value: '123 Jewellery Street, Connaught Place, New Delhi, India 110001', group: 'contact' } }),
+    prisma.setting.create({ data: { key: 'announcement_bar_text', value: 'Free shipping on all orders above ₹50,000 ✦', group: 'general' } }),
+    prisma.setting.create({ data: { key: 'announcement_bar_enabled', value: 'true', group: 'general' } }),
+    prisma.setting.create({ data: { key: 'instagram_url', value: 'https://instagram.com/royalshine', group: 'social' } }),
+    prisma.setting.create({ data: { key: 'facebook_url', value: 'https://facebook.com/royalshine', group: 'social' } }),
+  ]);
 
   console.log('✅ Seeding complete!');
 }
