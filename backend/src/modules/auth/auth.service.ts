@@ -3,7 +3,6 @@ import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { LoginDto } from './dto/login.dto';
-import * as argon2 from 'argon2';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -58,13 +57,10 @@ export class AuthService implements OnModuleInit {
 
     let valid = false;
     try {
-      valid = await argon2.verify(user.password, loginDto.password);
+      // Laravel's migrated password hashes and provisioned admin hashes use bcrypt.
+      valid = await bcrypt.compare(loginDto.password, user.password);
     } catch {
-      try {
-        valid = await bcrypt.compare(loginDto.password, user.password);
-      } catch {
-        valid = false;
-      }
+      valid = false;
     }
 
     if (!valid) {
