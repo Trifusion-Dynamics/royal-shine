@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../database/prisma.service';
 import { LoginDto } from './dto/login.dto';
-import * as argon2 from 'argon2';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -21,18 +20,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Try argon2 first, fall back to bcrypt for migrated passwords
-    let valid = false;
-    try {
-      valid = await argon2.verify(user.password, loginDto.password);
-    } catch {
-      // Try bcrypt if argon2 fails (Laravel hashed passwords)
-      try {
-        valid = await bcrypt.compare(loginDto.password, user.password);
-      } catch {
-        valid = false;
-      }
-    }
+    const valid = await bcrypt.compare(loginDto.password, user.password);
 
     if (!valid) {
       throw new UnauthorizedException('Invalid credentials');

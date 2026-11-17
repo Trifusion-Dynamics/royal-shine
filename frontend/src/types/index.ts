@@ -380,6 +380,25 @@ export interface CustomerGroup {
   enquiries: Enquiry[];
 }
 
+// ─── Cart Types ─────────────────────────────────────────────
+
+export interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
+export interface CartState {
+  items: CartItem[];
+  itemCount: number;
+  subtotal: number;
+  addItem: (product: Product, qty?: number) => void;
+  removeItem: (productId: number) => void;
+  updateQuantity: (productId: number, qty: number) => void;
+  clearCart: () => void;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}
+
 export interface UploadResponse {
   url: string;
   public_id?: string;

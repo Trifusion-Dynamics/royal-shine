@@ -4,123 +4,137 @@ import { collectionsService } from '@/services/collections.service';
 import { productsService } from '@/services/products.service';
 import Header from '@/components/public/header';
 import Footer from '@/components/public/footer';
+import { SectionHeading } from '@/components/ui/section-heading';
 import { formatPrice } from '@/lib/utils';
-
-type CollectionItem = {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string | null;
-  image?: string | null;
-  products_count?: number;
-};
-
-async function getCollections() {
-  try {
-    const res = await collectionsService.getAll(false);
-    const data = res.data || res;
-    return Array.isArray(data) ? data : data.data || [];
-  } catch {
-    return [];
-  }
-}
-
-async function getProducts() {
-  try {
-    const res = await productsService.getAll({ status: 'published', limit: 20 });
-    const data = res.data || res;
-    return Array.isArray(data) ? data : data.data || [];
-  } catch {
-    return [];
-  }
-}
 
 export const metadata = {
   title: 'Collections | Royal Shine',
   description: 'Explore our curated jewellery collections - Heritage Gold, Eternal Diamonds, Bridal Splendour, and more.',
 };
 
+async function getData() {
+  const [collectionsRes, productsRes] = await Promise.allSettled([
+    collectionsService.getAll(false),
+    productsService.getAll({ status: 'published', limit: 20 }),
+  ]);
+
+  const unwrap = (r: any, fallback: any) =>
+    r.status === 'fulfilled' ? (r.value.data || r.value || fallback) : fallback;
+
+  return {
+    collections: unwrap(collectionsRes, []).filter((c: any) => c.status === 'active'),
+    products: unwrap(productsRes, []),
+  };
+}
+
 export default async function CollectionsPage() {
-  const [collections, products] = await Promise.all([getCollections(), getProducts()]);
+  const { collections, products } = await getData();
 
   return (
     <main className="min-h-screen">
       <Header />
-      <section className="section-wrap">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-4xl text-dark-900 mb-8">Our Collections</h2>
-          <p className="text-dark-600 max-w-2xl mb-16">
-            Each collection tells a story. From heritage-inspired gold to eternal diamonds, discover pieces designed for your most cherished moments.
+      <section className="py-16">
+        <div className="container-luxury text-center">
+          <h1 className="text-5xl md:text-6xl font-serif text-charcoal mb-4 leading-tight">
+            Our Collections
+          </h1>
+          <div className="w-20 h-[1px] bg-gold mx-auto mb-6" />
+          <p className="text-lg text-warm-gray max-w-2xl mx-auto leading-relaxed">
+            Curated collections for every occasion
           </p>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
-            {(collections as CollectionItem[]).map((collection) => (
-              <div
+        {collections.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-10 mt-14">
+            {collections.map((collection: any) => (
+              <Link
                 key={collection.id}
-                className="group relative overflow-hidden rounded-2xl border border-dark-100 bg-white hover:shadow-gold-lg transition-all duration-300"
+                href={`/collections/${collection.slug}`}
+                className="group block border border-beige bg-white rounded-lg overflow-hidden card"
               >
-                <div className="aspect-[4/3] relative overflow-hidden bg-dark-50">
-                  {collection.image ? (
+                {collection.image && (
+                  <div className="image-wrap aspect-[4/5]">
                     <Image
                       src={collection.image}
                       alt={collection.name}
                       fill
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, 25vw"
+                      className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
                       priority
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-gold-400 font-serif text-6xl">{collection.name.charAt(0)}</span>
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-8">
-                    <h3 className="font-serif text-2xl text-white font-semibold">{collection.name}</h3>
-                    <p className="text-dark-100 text-sm mt-1">{collection.description}</p>
                   </div>
-                </div>
+                )}
                 <div className="p-6">
-                  <p className="text-xs uppercase tracking-wider text-dark-400 font-semibold">
-                    {collection.products_count} pieces
-                  </p>
-                  <Link
-                    href={`/collections/${collection.slug}`}
-                    className="text-gold-600 text-sm font-medium hover:text-gold-700 inline-flex items-center gap-1"
-                  >
-                    Explore →
-                  </Link>
+                  <h3 className="font-serif text-lg text-charcoal mb-2 leading-tight group-hover:text-gold transition-colors">
+                    {collection.name}
+                  </h3>
+                  {collection.description && (
+                    <p className="text-sm text-warm-gray line-clamp-2 mb-4 leading-relaxed">
+                      {collection.description}
+                    </p>
+                  )}
+                  <span className="btn btn-text text-gold hover:text-brown text-sm">
+                    Explore Collection
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
+        )}
 
-          <section className="border-t border-dark-100 pt-12">
-            <h3 className="font-serif text-2xl text-dark-900 mb-8">Featured Pieces</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {(products as any[]).slice(0, 8).map((product) => (
-                <div key={product.id} className="flex flex-col">
-                  <div className="aspect-square bg-dark-50 rounded-xl overflow-hidden mb-3">
+        {products.length > 0 && (
+          <section className="mt-20">
+            <SectionHeading title="Featured Products" subtitle="From our collections" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
+              {products.slice(0, 8).map((product: any) => (
+                <div key={product.id} className="card group block">
+                  <div className="image-wrap aspect-square">
                     {product.images?.[0]?.image ? (
-                      <Image src={product.images[0].image} alt={product.name} fill className="object-cover object-center" sizes="25vw" />
+                      <Image
+                        src={productImage(product.images[0], { width: 400, height: 400, quality: 85, format: 'webp' })}
+                        alt={product.name}
+                        fill
+                        sizes="25vw"
+                        className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                      />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gold-400 font-serif text-lg">R</div>
+                      <div className="w-full h-full lazy-placeholder flex items-center justify-center">
+                        <span className="text-gold-600 font-serif text-lg">R</span>
+                      </div>
                     )}
                   </div>
-                  <p className="text-xs uppercase tracking-wider text-dark-400 font-semibold mb-1">
+                  <p className="text-xs font-semibold text-gold uppercase tracking-wider mb-1">
                     {product.category?.name || 'Jewellery'}
                   </p>
-                  <p className="text-sm font-semibold text-dark-900 mb-1">{product.name}</p>
-                  <p className="text-xs text-dark-500">
+                  <p className="text-sm font-semibold text-charcoal mb-1">{product.name}</p>
+                  <p className="text-xs text-warm-gray">
                     {product.price_on_request ? 'POA' : formatPrice(product.price)}
                   </p>
                 </div>
               ))}
             </div>
           </section>
-        </div>
+        )}
       </section>
+
       <Footer />
     </main>
   );
+}
+
+function productImage(image: string | null | undefined, options: { width?: number; height?: number; quality?: number; format?: string } = {}) {
+  if (!image) return '/images/placeholder-jewel.jpg';
+  if (image.startsWith('http')) return image;
+  const endpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/royalshine';
+  const transforms: string[] = [];
+  if (options.width) transforms.push(`w-${options.width}`);
+  if (options.height) transforms.push(`h-${options.height}`);
+  if (options.quality) transforms.push(`q-${options.quality}`);
+  if (options.format) transforms.push(`f-${options.format}`);
+  const transformStr = transforms.length > 0 ? `tr:${transforms.join(',')}` : '';
+  const cleanPath = image.startsWith('/') ? image.slice(1) : image;
+  return `${endpoint}/${transformStr}/${cleanPath}`;
 }

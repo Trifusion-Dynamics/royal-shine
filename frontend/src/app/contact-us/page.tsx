@@ -1,5 +1,4 @@
-import Link from 'next/link';
-import ContactForm from './ContactForm';
+import ContactClient from './ContactClient';
 
 export const metadata = {
   title: 'Contact Us | Royal Shine',
@@ -7,5 +6,5 @@ export const metadata = {
 };
 
 export default function ContactPage() {
-  return <ContactForm />;
+  return <ContactClient />;
 }

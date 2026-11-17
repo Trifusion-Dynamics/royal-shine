@@ -4,22 +4,20 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'outline';
+  variant?: 'gold' | 'brown' | 'outline';
 }
 
-export function Badge({ className, variant = 'primary', ...props }: BadgeProps) {
+export function Badge({ className, variant = 'gold', ...props }: BadgeProps) {
   const variants = {
-    primary: 'bg-gold-100 text-gold-700',
-    secondary: 'bg-dark-100 text-dark-700',
-    success: 'bg-green-100 text-green-700',
-    warning: 'bg-yellow-100 text-yellow-700',
-    outline: 'border border-dark-200 text-dark-600 bg-transparent',
+    gold: 'bg-white text-brown border border-beige',
+    brown: 'bg-brown text-white',
+    outline: 'border border-beige text-charcoal bg-transparent',
   };
 
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium uppercase tracking-wider',
+        'inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider',
         variants[variant],
         className
       )}

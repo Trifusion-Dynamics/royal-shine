@@ -2,18 +2,11 @@ import { PrismaClient, UserRole, ContentStatus, ProductStatus, MetalType, GoldPu
 
 const prisma = new PrismaClient();
 
-const IK = (path: string, opts?: { width?: number; height?: number; quality?: number }) => {
-  const endpoint = process.env.IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/royalshine';
-  const w = opts?.width ? `w-${opts.width},` : '';
-  const h = opts?.height ? `h-${opts.height},` : '';
-  const q = opts?.quality ? `q-${opts.quality},` : '';
-  return `${endpoint}/tr:${w}${h}${q}${path}`;
-};
-
-const IMG = (file: string, w?: number, h?: number) => IK(file, { width: w, height: h, quality: 80 });
+// Direct public folder paths - images served from Next.js public folder
+const IMG = (file: string) => `/images/${file}`;
 
 async function main() {
-  console.log('🌱 Seeding Royal Shine premium jewellery database...');
+  console.log('🌱 Seeding Royal Shine premium jewellery database with real images...');
 
   // ── 1. Users ──
   console.log('Seeding users...');
@@ -23,11 +16,13 @@ async function main() {
     create: {
       name: 'Royal Shine Admin',
       email: 'admin@royalshine.in',
-      password: '$2b$10$hashedplaceholder',
+      password: '$2a$10$LVFgJYyUQhmUGXFG6jTaIubBZTN/puNSYYaet2Ktz.Gyv6M7T99LO',
       role: UserRole.super_admin,
       isAdmin: true,
     },
   });
+
+  console.log(`✅ Admin created: ${admin.email} / RoyalShine@2024`);
 
   // ── 2. Categories ──
   console.log('Seeding categories...');
@@ -39,7 +34,7 @@ async function main() {
         name: 'Gold Jewellery',
         slug: 'gold-jewellery',
         description: 'Pure hallmarked gold jewellery crafted for every celebration.',
-        image: IMG('categories/gold.jpg', 600, 600),
+        image: IMG('necjlace/royal-shine-necklace-collection-hero.webp'),
         isFeatured: true,
         status: ContentStatus.active,
         sortOrder: 1,
@@ -52,7 +47,7 @@ async function main() {
         name: 'Diamond Jewellery',
         slug: 'diamond-jewellery',
         description: 'Certified diamond jewellery for unforgettable moments.',
-        image: IMG('categories/diamond.jpg', 600, 600),
+        image: IMG('Rings/royal-shine-rings-collection-hero.webp'),
         isFeatured: true,
         status: ContentStatus.active,
         sortOrder: 2,
@@ -65,7 +60,7 @@ async function main() {
         name: 'Silver Jewellery',
         slug: 'silver-jewellery',
         description: 'Elegant handcrafted silver jewellery for daily wear.',
-        image: IMG('categories/silver.jpg', 600, 600),
+        image: IMG('Silver Jewellery/royal-shine-luxury-silver-jewellery-collection-hero.webp'),
         isFeatured: false,
         status: ContentStatus.active,
         sortOrder: 3,
@@ -78,7 +73,7 @@ async function main() {
         name: 'Bridal Collection',
         slug: 'bridal-collection',
         description: 'Exquisite bridal sets designed for your special day.',
-        image: IMG('categories/bridal.jpg', 600, 600),
+        image: IMG('Bridal-jewellery/royal-shine-bridal-jewellery-collection-hero.webp'),
         isFeatured: true,
         status: ContentStatus.active,
         sortOrder: 4,
@@ -91,7 +86,7 @@ async function main() {
         name: 'Artificial Jewellery',
         slug: 'artificial-jewellery',
         description: 'Affordable fashion jewellery for every occasion.',
-        image: IMG('categories/artificial.jpg', 600, 600),
+        image: IMG('Earing/royal-shine-earrings-collection-hero.webp'),
         isFeatured: false,
         status: ContentStatus.active,
         sortOrder: 5,
@@ -114,7 +109,7 @@ async function main() {
         name: 'Heritage Gold',
         slug: 'heritage-gold',
         description: 'Timeless gold designs inspired by royal heritage.',
-        image: IMG('collections/heritage.jpg', 600, 600),
+        image: IMG('necjlace/royal-shine-necklace-collection-hero.webp'),
         isFeatured: true,
         status: ContentStatus.active,
         sortOrder: 1,
@@ -127,7 +122,7 @@ async function main() {
         name: 'Eternal Diamonds',
         slug: 'eternal-diamonds',
         description: 'Certified diamonds that shine forever.',
-        image: IMG('collections/eternal.jpg', 600, 600),
+        image: IMG('Rings/royal-shine-rings-collection-hero.webp'),
         isFeatured: true,
         status: ContentStatus.active,
         sortOrder: 2,
@@ -140,7 +135,7 @@ async function main() {
         name: 'Bridal Splendour',
         slug: 'bridal-splendour',
         description: 'Complete bridal jewellery sets for your wedding day.',
-        image: IMG('collections/bridal-splendour.jpg', 600, 600),
+        image: IMG('Bridal-jewellery/royal-shine-bridal-jewellery-collection-hero.webp'),
         isFeatured: true,
         status: ContentStatus.active,
         sortOrder: 3,
@@ -153,7 +148,7 @@ async function main() {
         name: 'Everyday Elegance',
         slug: 'everyday-elegance',
         description: 'Lightweight designs for daily wear.',
-        image: IMG('collections/everyday.jpg', 600, 600),
+        image: IMG('Silver Jewellery/royal-shine-luxury-silver-jewellery-collection-hero.webp'),
         isFeatured: false,
         status: ContentStatus.active,
         sortOrder: 4,
@@ -191,9 +186,9 @@ async function main() {
         sortOrder: 1,
         images: {
           create: [
-            { image: IMG('products/heritage-necklace-1.jpg', 800, 800), altText: 'Royal Heritage Gold Necklace - Front view', isPrimary: true, sortOrder: 1 },
-            { image: IMG('products/heritage-necklace-2.jpg', 800, 800), altText: 'Royal Heritage Gold Necklace - Detail view', isPrimary: false, sortOrder: 2 },
-            { image: IMG('products/heritage-necklace-3.jpg', 800, 800), altText: 'Royal Heritage Gold Necklace - Worn view', isPrimary: false, sortOrder: 3 },
+            { image: IMG('necjlace/royal-shine-gold-diamond-necklace-chandelier-earring-set-original.png'), altText: 'Royal Heritage Gold Necklace - Front view', isPrimary: true, sortOrder: 1 },
+            { image: IMG('necjlace/royal-shine-antique-gold-rani-haar-ruby-emerald-original.png'), altText: 'Royal Heritage Gold Necklace - Detail view', isPrimary: false, sortOrder: 2 },
+            { image: IMG('necjlace/royal-shine-three-layer-gold-pendant-necklace-original.png'), altText: 'Royal Heritage Gold Necklace - Worn view', isPrimary: false, sortOrder: 3 },
           ],
         },
       },
@@ -220,8 +215,8 @@ async function main() {
         sortOrder: 2,
         images: {
           create: [
-            { image: IMG('products/jhumka-1.jpg', 800, 800), altText: 'Heritage Gold Jhumka Pair', isPrimary: true, sortOrder: 1 },
-            { image: IMG('products/jhumka-2.jpg', 800, 800), altText: 'Heritage Gold Jhumka Detail', isPrimary: false, sortOrder: 2 },
+            { image: IMG('Earing/royal-shine-bahubali-temple-gold-silver-jhumka-original.png'), altText: 'Heritage Gold Jhumka Pair', isPrimary: true, sortOrder: 1 },
+            { image: IMG('Earing/royal-shine-gold-silver-tiered-chandelier-earrings-original.png'), altText: 'Heritage Gold Jhumka Detail', isPrimary: false, sortOrder: 2 },
           ],
         },
       },
@@ -249,8 +244,8 @@ async function main() {
         sortOrder: 1,
         images: {
           create: [
-            { image: IMG('products/solitaire-ring-1.jpg', 800, 800), altText: 'Eternal Diamond Solitaire Ring', isPrimary: true, sortOrder: 1 },
-            { image: IMG('products/solitaire-ring-2.jpg', 800, 800), altText: 'Diamond Solitaire Ring - Side profile', isPrimary: false, sortOrder: 2 },
+            { image: IMG('Rings/royal-shine-solitaire-diamond-ring-original.png.png'), altText: 'Eternal Diamond Solitaire Ring', isPrimary: true, sortOrder: 1 },
+            { image: IMG('Rings/royal-shine-oval-halo-pave-engagement-ring-original.png'), altText: 'Diamond Solitaire Ring - Side profile', isPrimary: false, sortOrder: 2 },
           ],
         },
       },
@@ -277,7 +272,7 @@ async function main() {
         sortOrder: 2,
         images: {
           create: [
-            { image: IMG('products/tennis-bracelet-1.jpg', 800, 800), altText: 'Diamond Tennis Bracelet', isPrimary: true, sortOrder: 1 },
+            { image: IMG('Braclets/royal-shine-gold-white-gold-tennis-diamond-bracelets-original.png'), altText: 'Diamond Tennis Bracelet', isPrimary: true, sortOrder: 1 },
           ],
         },
       },
@@ -305,9 +300,9 @@ async function main() {
         sortOrder: 1,
         images: {
           create: [
-            { image: IMG('products/bridal-set-1.jpg', 800, 800), altText: 'Bridal Splendour Necklace Set', isPrimary: true, sortOrder: 1 },
-            { image: IMG('products/bridal-set-2.jpg', 800, 800), altText: 'Bridal Set - Earrings detail', isPrimary: false, sortOrder: 2 },
-            { image: IMG('products/bridal-set-3.jpg', 800, 800), altText: 'Bridal Set - Maang tikka detail', isPrimary: false, sortOrder: 3 },
+            { image: IMG('Bridal-jewellery/royal-shine-gold-kundan-polki-complete-bridal-jewellery-set-original.png'), altText: 'Bridal Splendour Necklace Set', isPrimary: true, sortOrder: 1 },
+            { image: IMG('Bridal-jewellery/royal-shine-gold-kundan-polki-bridal-jhoomar-passa-original.png'), altText: 'Bridal Set - Earrings detail', isPrimary: false, sortOrder: 2 },
+            { image: IMG('Bridal-jewellery/royal-shine-gold-kundan-pearl-bridal-matha-patti-original.png'), altText: 'Bridal Set - Maang tikka detail', isPrimary: false, sortOrder: 3 },
           ],
         },
       },
@@ -334,7 +329,7 @@ async function main() {
         sortOrder: 2,
         images: {
           create: [
-            { image: IMG('products/bridal-bangles-1.jpg', 800, 800), altText: 'Bridal Gold Bangles Pair', isPrimary: true, sortOrder: 1 },
+            { image: IMG('Braclets/royal-shine-gold-kundan-meenakari-bridal-bangles-original.png'), altText: 'Bridal Gold Bangles Pair', isPrimary: true, sortOrder: 1 },
           ],
         },
       },
@@ -361,7 +356,7 @@ async function main() {
         sortOrder: 1,
         images: {
           create: [
-            { image: IMG('products/lotus-pendant-1.jpg', 800, 800), altText: 'Silver Lotus Pendant', isPrimary: true, sortOrder: 1 },
+            { image: IMG('Silver Jewellery/royal-shine-925-sterling-silver-pendant-studs-ring-bracelet-set-original.png'), altText: 'Silver Lotus Pendant', isPrimary: true, sortOrder: 1 },
           ],
         },
       },
@@ -387,7 +382,7 @@ async function main() {
         sortOrder: 2,
         images: {
           create: [
-            { image: IMG('products/oxidised-earrings-1.jpg', 800, 800), altText: 'Silver Oxidised Earrings', isPrimary: true, sortOrder: 1 },
+            { image: IMG('Earing/royal-shine-gold-silver-hoop-earrings-set-original.png'), altText: 'Silver Oxidised Earrings', isPrimary: true, sortOrder: 1 },
           ],
         },
       },
@@ -415,7 +410,7 @@ async function main() {
         sortOrder: 3,
         images: {
           create: [
-            { image: IMG('products/18k-pendant-1.jpg', 800, 800), altText: '18K Gold Pendant with Chain', isPrimary: true, sortOrder: 1 },
+            { image: IMG('necjlace/royal-shine-gold-teardrop-diamond-pendant-necklace-original.png.png'), altText: '18K Gold Pendant with Chain', isPrimary: true, sortOrder: 1 },
           ],
         },
       },
@@ -430,7 +425,7 @@ async function main() {
   await Promise.all([
     prisma.banner.create({
       data: {
-        image: IMG('banners/hero-1.jpg', 1600, 600),
+        image: IMG('necjlace/royal-shine-necklace-collection-hero.webp'),
         heading: 'The Art of Adornment',
         subheading: 'Every piece tells your story. Discover jewellery that celebrates your moments.',
         ctaLabel: 'Explore Collection',
@@ -442,7 +437,7 @@ async function main() {
     }),
     prisma.banner.create({
       data: {
-        image: IMG('banners/hero-2.jpg', 1600, 600),
+        image: IMG('Bridal-jewellery/royal-shine-bridal-jewellery-collection-hero.webp'),
         heading: 'Bridal Splendour',
         subheading: 'Exquisite 22K gold bridal sets for your wedding day.',
         ctaLabel: 'View Bridal Collection',
@@ -454,7 +449,7 @@ async function main() {
     }),
     prisma.banner.create({
       data: {
-        image: IMG('banners/hero-3.jpg', 1600, 600),
+        image: IMG('Rings/royal-shine-rings-collection-hero.webp'),
         heading: 'Eternal Diamonds',
         subheading: 'Certified diamonds that shine forever.',
         ctaLabel: 'Shop Diamonds',
@@ -471,7 +466,7 @@ async function main() {
   await Promise.all([
     prisma.gallery.create({
       data: {
-        image: IMG('gallery/gallery-1.jpg', 800, 800),
+        image: IMG('Bridal-jewellery/royal-shine-bridal-jewellery-collection-hero.webp'),
         title: 'Wedding Day',
         description: 'A bride adorned in Royal Shine bridal jewellery.',
         altText: 'Bridal jewellery gallery',
@@ -481,7 +476,7 @@ async function main() {
     }),
     prisma.gallery.create({
       data: {
-        image: IMG('gallery/gallery-2.jpg', 800, 800),
+        image: IMG('necjlace/royal-shine-necklace-collection-hero.webp'),
         title: 'Festival Celebration',
         description: 'Gold jewellery for festive occasions.',
         altText: 'Festival jewellery gallery',
@@ -491,7 +486,7 @@ async function main() {
     }),
     prisma.gallery.create({
       data: {
-        image: IMG('gallery/gallery-3.jpg', 800, 800),
+        image: IMG('Silver Jewellery/royal-shine-luxury-silver-jewellery-collection-hero.webp'),
         title: 'Everyday Elegance',
         description: 'Silver and gold for daily wear.',
         altText: 'Everyday jewellery gallery',
@@ -509,7 +504,7 @@ async function main() {
         customerName: 'Priya Sharma',
         customerLocation: 'Mumbai, India',
         testimonial: 'The bridal set I purchased from Royal Shine exceeded all my expectations. The craftsmanship is exquisite and the quality is unmatched.',
-        image: IMG('testimonials/priya.jpg', 200, 200),
+        image: IMG('Earing/royal-shine-earrings-collection-hero.webp'),
         rating: 5,
         sortOrder: 1,
         isApproved: true,
@@ -520,7 +515,7 @@ async function main() {
         customerName: 'Rahul Verma',
         customerLocation: 'Delhi, India',
         testimonial: 'Bought a diamond solitaire ring for my proposal. The diamond is stunning and the service was exceptional.',
-        image: IMG('testimonials/rahul.jpg', 200, 200),
+        image: IMG('Rings/royal-shine-rings-collection-hero.webp'),
         rating: 5,
         sortOrder: 2,
         isApproved: true,
@@ -531,7 +526,7 @@ async function main() {
         customerName: 'Ananya Reddy',
         customerLocation: 'Bangalore, India',
         testimonial: 'Love my silver lotus pendant. It is lightweight and perfect for everyday wear. Highly recommend Royal Shine.',
-        image: IMG('testimonials/ananya.jpg', 200, 200),
+        image: IMG('Silver Jewellery/royal-shine-luxury-silver-jewellery-collection-hero.webp'),
         rating: 5,
         sortOrder: 3,
         isApproved: true,
@@ -543,7 +538,7 @@ async function main() {
   console.log('Seeding settings...');
   await Promise.all([
     prisma.setting.create({ data: { key: 'site_name', value: 'Royal Shine', group: 'general' } }),
-    prisma.setting.create({ data: { key: 'site_logo', value: IMG('logo/royal-shine.svg', 200, 60), group: 'general' } }),
+    prisma.setting.create({ data: { key: 'site_logo', value: IMG('necjlace/royal-shine-necklace-collection-hero.webp'), group: 'general' } }),
     prisma.setting.create({ data: { key: 'phone', value: '+91 98765 43210', group: 'contact' } }),
     prisma.setting.create({ data: { key: 'whatsapp_number', value: '919876543210', group: 'contact' } }),
     prisma.setting.create({ data: { key: 'email', value: 'hello@royalshine.in', group: 'contact' } }),
