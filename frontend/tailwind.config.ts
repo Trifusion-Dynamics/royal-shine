@@ -12,6 +12,7 @@ const config: Config = {
       colors: {
         gold: {
           DEFAULT: '#b08548',
+          dark: '#9a6f36',
           50: '#fdf8f0',
           100: '#f9edd8',
           200: '#f2d9ab',

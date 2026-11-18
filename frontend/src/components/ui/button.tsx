@@ -26,15 +26,22 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       lg: 'min-height-52 px-8 py-4 text-base',
     };
 
+    const baseClasses = cn(
+      'inline-flex items-center justify-center font-medium transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:pointer-events-none rounded-lg',
+      variants[variant],
+      sizes[size],
+      className
+    );
+
+    if (asChild) {
+      return <Comp {...props} />;
+    }
+
     return (
       <Comp
-        {...(asChild ? {} : { ref })}
-        {...(asChild ? {} : { className: cn(
-          'inline-flex items-center justify-center font-medium transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:pointer-events-none rounded-lg',
-          variants[variant],
-          sizes[size],
-          className
-        ), type: 'button' })}
+        ref={ref}
+        type="button"
+        className={baseClasses}
         {...props}
       />
     );
