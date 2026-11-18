@@ -29,13 +29,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         {...(asChild ? {} : { ref })}
-        className={cn(
+        {...(asChild ? {} : { className: cn(
           'inline-flex items-center justify-center font-medium transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:pointer-events-none rounded-lg',
           variants[variant],
           sizes[size],
           className
-        )}
-        {...(asChild ? {} : { type: 'button' })}
+        ), type: 'button' })}
         {...props}
       />
     );
