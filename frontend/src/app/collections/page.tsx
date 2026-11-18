@@ -125,9 +125,10 @@ export default async function CollectionsPage() {
   );
 }
 
-function productImage(image: string | null | undefined, options: { width?: number; height?: number; quality?: number; format?: string } = {}) {
-  if (!image) return '/images/placeholder-jewel.jpg';
-  if (image.startsWith('http')) return image;
+function productImage(image: string | { image: string | null | undefined; altText?: string | null } | null | undefined, options: { width?: number; height?: number; quality?: number; format?: string } = {}) {
+  const img = typeof image === 'string' ? { image } : image;
+  if (!img?.image) return '/images/placeholder-jewel.jpg';
+  if (img.image.startsWith('http')) return img.image;
   const endpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/royalshine';
   const transforms: string[] = [];
   if (options.width) transforms.push(`w-${options.width}`);
@@ -135,6 +136,6 @@ function productImage(image: string | null | undefined, options: { width?: numbe
   if (options.quality) transforms.push(`q-${options.quality}`);
   if (options.format) transforms.push(`f-${options.format}`);
   const transformStr = transforms.length > 0 ? `tr:${transforms.join(',')}` : '';
-  const cleanPath = image.startsWith('/') ? image.slice(1) : image;
+  const cleanPath = img.image.startsWith('/') ? img.image.slice(1) : img.image;
   return `${endpoint}/${transformStr}/${cleanPath}`;
 }

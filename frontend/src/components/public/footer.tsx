@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { settingsService } from '@/services/settings.service';
 import { categoriesService } from '@/services/categories.service';
 import { useEffect, useState } from 'react';
@@ -85,6 +86,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 mb-14">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2.5 mb-5">
+              <Image
+                src="/images/Royal-Shine-Logo.png"
+                alt="Royal Shine Logo"
+                width={32}
+                height={32}
+                className="h-auto w-8 h-8 object-contain"
+                priority
+              />
               <span className="font-serif text-xl text-gold tracking-tight">ROYAL SHINE</span>
             </div>
             <p className="text-warm-gray/70 text-sm leading-relaxed max-w-xs mb-6">

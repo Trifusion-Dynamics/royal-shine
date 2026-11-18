@@ -85,39 +85,45 @@ export default async function HomePage() {
       {/* Hero Editorial Swiper */}
       {banners.length > 0 ? (
         <section className="relative overflow-hidden bg-charcoal">
-          <div className="relative h-[640px] md:h-[760px] lg:h-[900px] overflow-hidden">
+          <div className="relative h-[700px] md:h-[820px] lg:h-[950px] overflow-hidden">
             <div className="relative h-full w-full overflow-hidden">
               {banners.map((banner: any, idx: number) => (
                 <div key={banner.id} className="absolute inset-0 w-full h-full opacity-0 transition-opacity duration-1000 ease-in-out">
-                  <picture>
-                    {banner.mobileImage && (
-                      <source
-                        media="(max-width: 767px)"
-                        srcSet={banner.mobileImage}
-                      />
-                    )}
-                    <img
-                      src={banner.image}
+                  <Image
+                    src={banner.image}
+                    alt={banner.altText || banner.heading}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 100vw"
+                    className="object-cover object-center"
+                    priority={idx === 0}
+                    loading={idx === 0 ? 'eager' : 'lazy'}
+                  />
+                  {banner.mobileImage && (
+                    <Image
+                      src={banner.mobileImage}
                       alt={banner.altText || banner.heading}
-                      className="w-full h-full object-cover object-center"
+                      fill
+                      sizes="(max-width: 768px) 100vw"
+                      className="object-cover object-center hidden md:block"
+                      priority={idx === 0}
                       loading={idx === 0 ? 'eager' : 'lazy'}
                     />
-                  </picture>
-                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/40 to-charcoal/10" />
-                  <div className="absolute inset-0 px-6 md:px-12 pt-16 md:pt-28 pb-20 flex items-end lg:items-center z-10">
-                    <div className="max-w-2xl lg:max-w-xl">
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal/95 via-charcoal/60 to-charcoal/20" />
+                  <div className="absolute inset-0 px-6 md:px-12 pt-16 md:pt-32 pb-24 flex items-end lg:items-center z-10">
+                    <div className="max-w-2xl lg:max-w-3xl">
                       <span className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/10 backdrop-blur-sm text-gold text-[11px] font-semibold uppercase tracking-[0.18em] mb-6 border border-gold/40 rounded-full backdrop-filter">
                         New Collection
                       </span>
-                      <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl text-white mb-6 leading-[1.05] tracking-tight">
+                      <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-6 leading-[1.05] tracking-tight">
                         {banner.heading}
                       </h1>
                       {banner.subheading && (
-                        <p className="text-base md:text-lg text-white/85 mb-10 leading-relaxed max-w-md">
+                        <p className="text-lg md:text-xl text-white/90 mb-10 leading-relaxed max-w-lg">
                           {banner.subheading}
                         </p>
                       )}
-                      <div className="flex flex-col sm:flex-row gap-3">
+                      <div className="flex flex-col sm:flex-row gap-4">
                         {banner.ctaLabel && banner.ctaUrl && (
                           <a href={banner.ctaUrl} className="btn btn-gold btn-lg">
                             {banner.ctaLabel}
@@ -133,21 +139,21 @@ export default async function HomePage() {
               ))}
               {banners.length > 1 && (
                 <>
-                  <button className="swiper-button-prev absolute left-6 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white hover:text-charcoal transition-all flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <button className="swiper-button-prev absolute left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white hover:text-charcoal transition-all flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
-                  <button className="swiper-button-next absolute right-6 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white hover:text-charcoal transition-all flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <button className="swiper-button-next absolute right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white hover:text-charcoal transition-all flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
-                  <div className="swiper-pagination bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+                  <div className="swiper-pagination bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-3">
                     {banners.map((_, idx) => (
                       <button
                         key={idx}
-                        className={`w-2 h-2 rounded-full transition-colors ${idx === 0 ? 'bg-gold' : 'bg-white/40'}`}
+                        className={`w-2.5 h-2.5 rounded-full transition-colors ${idx === 0 ? 'bg-gold' : 'bg-white/40'}`}
                       />
                     ))}
                   </div>
@@ -157,28 +163,31 @@ export default async function HomePage() {
           </div>
         </section>
       ) : (
-        <section className="relative h-[640px] md:h-[760px] lg:h-[900px] overflow-hidden bg-charcoal">
+        <section className="relative h-[700px] md:h-[820px] lg:h-[950px] overflow-hidden bg-charcoal">
           <div className="absolute inset-0 w-full h-full">
-            <img
+            <Image
               src="/images/placeholder-jewel.jpg"
               alt="Royal Shine jewellery collection"
-              className="w-full h-full object-cover object-center"
+              fill
+              sizes="(max-width: 768px) 100vw, 100vw"
+              className="object-cover object-center"
+              priority
               loading="eager"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/40 to-charcoal/10" />
-          <div className="absolute inset-0 px-6 md:px-12 pt-16 md:pt-28 pb-20 flex items-end lg:items-center z-10">
-            <div className="max-w-2xl lg:max-w-xl z-10">
+          <div className="absolute inset-0 bg-gradient-to-t from-charcoal/95 via-charcoal/60 to-charcoal/20" />
+          <div className="absolute inset-0 px-6 md:px-12 pt-16 md:pt-32 pb-24 flex items-end lg:items-center z-10">
+            <div className="max-w-2xl lg:max-w-3xl">
               <span className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/10 backdrop-blur-sm text-gold text-[11px] font-semibold uppercase tracking-[0.18em] mb-6 border border-gold/40 rounded-full backdrop-filter">
                 New Collection
               </span>
-              <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl text-white mb-6 leading-[1.05] tracking-tight">
+              <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-6 leading-[1.05] tracking-tight">
                 Elegance That Lives Forever
               </h1>
-              <p className="text-base md:text-lg text-white/85 mb-10 leading-relaxed max-w-md">
+              <p className="text-lg md:text-xl text-white/90 mb-10 leading-relaxed max-w-lg">
                 Discover exquisite jewellery crafted to celebrate your most beautiful moments.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/jewellery" className="btn btn-gold btn-lg">Explore Collection</Link>
                 <Link href="/about-us" className="btn btn-outline text-white border-white hover:bg-white hover:text-charcoal btn-lg">
                   Discover Our Story

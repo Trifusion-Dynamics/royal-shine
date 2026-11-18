@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { LayoutDashboardIcon, UsersIcon, PackageIcon, ShoppingBagIcon, MailIcon, CogIcon, LogOutIcon } from 'lucide-react';
 
@@ -41,6 +42,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <nav className="fixed top-0 left-0 z-40 h-screen w-64 bg-white border-r border-beige transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:static lg:relative lg:z-auto lg:w-auto lg:border-0 lg:shadow-none lg:top-auto">
         <div className="flex items-center justify-between h-20 px-6 border-b border-beige">
           <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/images/Royal-Shine-Logo.png"
+              alt="Royal Shine Logo"
+              width={32}
+              height={32}
+              className="h-auto w-8 h-8 object-contain"
+              priority
+            />
             <span className="font-serif text-xl text-gold tracking-tight">ROYAL SHINE</span>
           </Link>
           <button

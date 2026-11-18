@@ -1,6 +1,7 @@
 'use client';
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import api from '../../../lib/api';
@@ -42,6 +43,14 @@ export default function AdminLogin() {
         {/* Left: Branding */}
         <section className="flex-1 flex flex-col justify-center px-6 py-12 lg:px-20 lg:py-24 bg-champagne border-r border-beige">
           <Link href="/" className="flex items-center gap-2 mb-8">
+            <Image
+              src="/images/Royal-Shine-Logo.png"
+              alt="Royal Shine Logo"
+              width={40}
+              height={40}
+              className="h-auto w-10 h-10 object-contain"
+              priority
+            />
             <span className="font-serif text-3xl text-gold tracking-tight">ROYAL</span>
             <span className="font-serif text-3xl text-charcoal tracking-tight">SHINE</span>
           </Link>

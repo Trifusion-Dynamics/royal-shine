@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { settingsService } from '@/services/settings.service';
 import { categoriesService } from '@/services/categories.service';
@@ -88,6 +89,14 @@ export default function Header() {
           <div className="flex justify-between items-center h-18 md:h-20 px-4 sm:px-6 lg:px-8">
             <div className="flex-shrink-0 flex items-center lg:mr-8">
               <Link href="/" className="flex items-center gap-2">
+                <Image
+                  src="/images/Royal-Shine-Logo.png"
+                  alt="Royal Shine Logo"
+                  width={40}
+                  height={40}
+                  className="h-auto w-10 h-10 object-contain"
+                  priority
+                />
                 <span className="font-serif text-[1.5rem] text-gold tracking-tight">ROYAL SHINE</span>
               </Link>
             </div>
@@ -326,6 +335,14 @@ export default function Header() {
           <div className="flex flex-col h-full">
             <div className="container-luxury flex justify-between items-center h-20 border-b border-beige">
               <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2">
+                <Image
+                  src="/images/Royal-Shine-Logo.png"
+                  alt="Royal Shine Logo"
+                  width={32}
+                  height={32}
+                  className="h-auto w-8 h-8 object-contain"
+                  priority
+                />
                 <span className="font-serif text-[1.5rem] text-gold tracking-tight">ROYAL SHINE</span>
               </Link>
               <button onClick={() => setOpen(false)} className="text-charcoal hover:text-gold">
