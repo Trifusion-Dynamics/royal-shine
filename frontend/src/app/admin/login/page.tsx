@@ -26,7 +26,11 @@ export default function AdminLogin() {
       setStoredUser(data.user);
       router.push('/admin');
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Unable to sign in. Check your credentials and try again.');
+      let msg = err?.response?.data?.message || 'Unable to sign in. Check your credentials and try again.';
+      if (err?.status === 0 || err?.message?.includes('Backend server') || err?.message?.includes('Network error')) {
+        msg = err.message || 'Unable to connect to the server. Please make sure the backend API is running.';
+      }
+      setError(msg);
     } finally {
       setBusy(false);
     }

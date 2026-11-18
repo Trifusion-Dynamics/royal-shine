@@ -38,7 +38,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-ivory text-charcoal">
-      <nav className="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-beige transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:static lg:inset-0 lg:z-auto lg:w-auto lg:border-0 lg:shadow-none">
+      <nav className="fixed top-0 left-0 z-40 h-screen w-64 bg-white border-r border-beige transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:static lg:relative lg:z-auto lg:w-auto lg:border-0 lg:shadow-none lg:top-auto">
         <div className="flex items-center justify-between h-20 px-6 border-b border-beige">
           <Link href="/" className="flex items-center gap-2">
             <span className="font-serif text-xl text-gold tracking-tight">ROYAL SHINE</span>
@@ -83,7 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </nav>
 
       <div className="lg:pl-64 pt-20">
-        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-beige px-6 py-4">
+        <header className="fixed top-0 left-0 right-0 z-30 bg-white/90 backdrop-blur-md border-b border-beige px-6 py-4 lg:left-[256px] lg:right-0">
           <div className="flex items-center justify-between">
             <div className="hidden lg:flex items-center gap-4 text-sm text-warm-gray">
               <span>Royal Shine Admin</span>

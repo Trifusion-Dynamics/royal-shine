@@ -60,7 +60,7 @@ export default function AdminProducts() {
       const data = res.data.data || res.data || [];
       setProducts(Array.isArray(data) ? data : []);
     } catch (e: any) {
-      toast.error(e.response?.data?.message || 'Failed to load products');
+      toast.error(e.message || e.response?.data?.message || 'Failed to load products');
     } finally {
       setLoading(false);
     }
@@ -100,7 +100,7 @@ export default function AdminProducts() {
       setOpen(false);
       fetchProducts();
     } catch (e: any) {
-      toast.error(e.response?.data?.message || 'Failed to save product');
+      toast.error(e.message || e.response?.data?.message || 'Failed to save product');
     }
   };
 
@@ -111,7 +111,7 @@ export default function AdminProducts() {
       toast.success('Product deleted');
       fetchProducts();
     } catch (e: any) {
-      toast.error(e.response?.data?.message || 'Failed to delete product');
+      toast.error(e.message || e.response?.data?.message || 'Failed to delete product');
     }
   };
 

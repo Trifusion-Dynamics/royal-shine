@@ -29,12 +29,12 @@ export default function AdminHome() {
     if (!localStorage.getItem('royal_shine_token')) return;
     api.get('/dashboard/stats')
       .then((r) => setData(r.data))
-      .catch((e) => {
-        if (e.response?.status === 401) {
+      .catch((e: any) => {
+        if (e.status === 401) {
           localStorage.removeItem('royal_shine_token');
           window.location.href = '/admin/login';
         } else {
-          setError('Unable to load dashboard data.');
+          setError(e.message || 'Unable to load dashboard data.');
         }
       });
   }, []);
