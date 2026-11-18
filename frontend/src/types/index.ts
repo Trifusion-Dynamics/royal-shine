@@ -293,6 +293,16 @@ export interface LoginForm {
   password: string;
 }
 
+export interface ChangePasswordForm {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface UpdateProfileForm {
+  name?: string;
+  email?: string;
+}
+
 export interface EnquiryFormData {
   name: string;
   mobile: string;

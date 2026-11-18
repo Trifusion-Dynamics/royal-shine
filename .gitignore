@@ -6,7 +6,7 @@ frontend/.next/
 frontend/out/
 backend/dist/
 backend/.env
-frontend/.env.local
+frontend/.env
 backend/uploads/
 *.log
 .DS_Store

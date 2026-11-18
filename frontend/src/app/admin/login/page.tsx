@@ -1,6 +1,134 @@
 'use client';
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
-import api from '../../../lib/api';
 import { useRouter } from 'next/navigation';
-export default function AdminLogin(){const [email,setEmail]=useState('');const [password,setPassword]=useState('');const [error,setError]=useState('');const [busy,setBusy]=useState(false);const router=useRouter();async function submit(e:FormEvent){e.preventDefault();setBusy(true);setError('');try{const {data}=await api.post('/auth/login',{email,password});const token=data.access_token||data.accessToken;if(!token)throw new Error('Authentication response was incomplete');document.cookie=`royal_shine_token=${token}; Path=/; SameSite=Lax; Secure`;localStorage.setItem('royal_shine_token',token);localStorage.setItem('royal_shine_user',JSON.stringify(data.user));router.push('/admin');}catch(err:any){setError(err?.response?.data?.message||'Unable to sign in. Check your credentials and try again.');}finally{setBusy(false)}}return <main style={{minHeight:'100vh',display:'grid',gridTemplateColumns:'1fr 1fr',background:'#f7f3ed'}}><section style={{padding:'8vw',display:'flex',flexDirection:'column',justifyContent:'center'}}><Link className="brand" href="/">ROYAL <span>SHINE</span><small>JEWELLERS</small></Link><p className="eyebrow" style={{marginTop:70}}>ADMINISTRATION</p><h1 style={{font:'52px/1.1 Playfair Display,serif',fontWeight:400}}>Welcome<br/><em>back.</em></h1><p style={{color:'#756c62',lineHeight:1.8}}>Sign in to manage your jewellery catalogue, customer enquiries and website content.</p></section><section style={{background:'#fffdf9',display:'grid',placeItems:'center',padding:30}}><form onSubmit={submit} style={{width:'min(100%,390px)'}}><p className="eyebrow">SECURE SIGN IN</p><h2 style={{font:'32px Playfair Display,serif',fontWeight:400}}>Admin portal</h2><label style={{display:'block',fontSize:12,margin:'28px 0 8px'}}>Email address</label><input required type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="username" style={{width:'100%',padding:15,border:'1px solid #e9e1d6',background:'#fffdf9'}}/><label style={{display:'block',fontSize:12,margin:'20px 0 8px'}}>Password</label><input required type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" style={{width:'100%',padding:15,border:'1px solid #e9e1d6',background:'#fffdf9'}}/>{error&&<p role="alert" style={{color:'#b42318',fontSize:12}}>{error}</p>}<button disabled={busy} className="button button-dark" style={{width:'100%',justifyContent:'space-between',marginTop:25,border:0,cursor:'pointer'}}>{busy?'Signing in…':'Sign in securely'} ↗</button><p style={{fontSize:11,color:'#756c62',marginTop:24}}>Access is restricted to authorized Royal Shine administrators.</p></form></section><style jsx>{`@media(max-width:700px){main{grid-template-columns:1fr!important}main section:first-child{padding:40px 8% 15px}main section:first-child .eyebrow{margin-top:30px!important}main section:last-child{padding:45px 8%}}`}</style></main>}
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import api from '../../../lib/api';
+import { setToken, setStoredUser } from '../../../lib/auth';
+
+export default function AdminLogin() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      const { data } = await api.post('/auth/login', { email, password });
+      const token = data.access_token || data.accessToken;
+      if (!token) throw new Error('Authentication response was incomplete');
+      setToken(token);
+      setStoredUser(data.user);
+      router.push('/admin');
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Unable to sign in. Check your credentials and try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <main className="min-h-screen w-full bg-cream">
+      <div className="flex flex-col lg:flex-row h-[calc(100vh-rem(4rem))]">
+        {/* Left: Branding */}
+        <section className="flex-1 flex flex-col justify-center px-6 py-12 lg:px-20 lg:py-24 bg-champagne border-r border-beige">
+          <Link href="/" className="flex items-center gap-2 mb-8">
+            <span className="font-serif text-3xl text-gold tracking-tight">ROYAL</span>
+            <span className="font-serif text-3xl text-charcoal tracking-tight">SHINE</span>
+          </Link>
+          <p className="text-xs font-semibold text-gold uppercase tracking-widest mb-6">ADMINISTRATION</p>
+          <h1 className="font-serif text-5xl lg:text-6xl text-charcoal leading-tight mb-6">
+            Welcome<br />
+            <em className="text-gold">back.</em>
+          </h1>
+          <p className="text-warm-gray text-lg leading-relaxed max-w-md mb-10">
+            Sign in to manage your jewellery catalogue, customer enquiries, and website content.
+          </p>
+          <div className="flex gap-4 text-sm text-warm-gray">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-gold" />
+              Secure portal
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-gold" />
+              Jewellery catalogue
+            </div>
+          </div>
+        </section>
+
+        {/* Right: Login Form */}
+        <section className="flex-1 flex items-center justify-center bg-white p-6 lg:p-0">
+          <form onSubmit={submit} className="w-full max-w-md space-y-6">
+            <div className="text-center">
+              <p className="text-xs font-semibold text-gold uppercase tracking-widest">Secure Sign In</p>
+              <h2 className="font-serif text-3xl text-charcoal">Admin portal</h2>
+            </div>
+
+            {error && (
+              <div className="rounded-lg bg-red-50 border border-red-100 p-4 text-sm text-red-800 flex items-center gap-3">
+                <span className="w-5 h-5 text-red-600">!</span>
+                {error}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-charcoal">Email address</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray w-4 h-4" />
+                <input
+                  required
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="username"
+                  className="w-full pl-10 pr-4 py-4 bg-champagne/50 border border-beige rounded-xl text-charcoal focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all"
+                  placeholder="admin@royalshine.in"
+                />
+              </div>
+
+              <label className="block text-sm font-medium text-charcoal">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray w-4 h-4" />
+                <input
+                  required
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  className="w-full pl-10 pr-10 py-4 bg-champagne/50 border border-beige rounded-xl text-charcoal focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-warm-gray hover:text-gold"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={busy}
+              className="w-full flex items-center justify-center gap-2 py-4 bg-gold text-white rounded-xl font-medium hover:bg-gold-dark transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {busy ? 'Signing in…' : 'Sign in'}
+              <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <p className="text-xs text-center text-warm-gray">
+              Default credentials: <br />
+              <span className="text-gold font-medium">admin@royalshine.in</span> / <span className="text-gold font-medium">RoyalShine@2024</span>
+            </p>
+          </form>
+        </section>
+      </div>
+    </main>
+  );
+}
